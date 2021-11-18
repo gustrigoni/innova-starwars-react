@@ -2,7 +2,9 @@ import {
   Container,
   Row,
   Logo,
-  Input
+  InputContainer,
+  Input,
+  Texto
 } from './styles';
 
 export function Home() {
@@ -10,9 +12,11 @@ export function Home() {
     <Container>
       <Row>
         <Logo />
-        <Input />
+        <InputContainer>
+          <Input />
+        </InputContainer>
       </Row>
-      ver todos
+      <Texto>ver todos</Texto>
     </Container>
   );
 }

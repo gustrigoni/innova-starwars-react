@@ -27,23 +27,34 @@ export const Logo = styled.img.attrs({
   align-self: center;
 `;
 
+export const InputContainer = styled.div`
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 35px;
+`;
+
 export const Input = styled.input.attrs({
   placeholder: 'Qual personagem você deseja procurar?'
 })`
-  width: 90%;
-  max-width: 490px;
-  height: 5vh;
+  width: 100%;
+  height: 90%;
+  padding: 4% 3%;
+  box-sizing: border-box;
   border-radius: 5px;
   background-color: #FFC107;
-  color: #000000;
-  font-size: 1.1rem;
   outline: 0;
   border: none;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  padding: 0.2vw 1vw;
-
+  font-size: calc(1em - 17%);
+  line-height: 1.5;
   ::placeholder {
     color: #555555;
   }
+  :focus { }
+`;
+
+export const Texto = styled.button`
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  color: #ffffff;
 `;
