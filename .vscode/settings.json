@@ -1,0 +1,15 @@
+{
+  "editor.tabSize": 2,
+  "explorer.compactFolders": false,
+  "editor.formatOnSave": true,
+  "saveAndRun": {
+    "commands": [
+      {
+        "match": ".scss",
+        "cmd": "yarn sass src/assets/sass/main.scss src/assets/css/main.css",
+        "useShortcut": false,
+        "silent": true
+      },
+    ]
+  }
+}
