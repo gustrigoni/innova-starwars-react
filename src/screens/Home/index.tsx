@@ -4,7 +4,7 @@ import {
   Logo,
   InputContainer,
   Input,
-  Texto
+  Botao
 } from './styles';
 
 export function Home() {
@@ -16,7 +16,7 @@ export function Home() {
           <Input />
         </InputContainer>
       </Row>
-      <Texto>ver todos</Texto>
+      <Botao>ver todos</Botao>
     </Container>
   );
 }

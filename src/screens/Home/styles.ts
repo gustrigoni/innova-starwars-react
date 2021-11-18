@@ -25,6 +25,7 @@ export const Logo = styled.img.attrs({
   width: 90%;
   max-width: 300px;
   align-self: center;
+  user-select: none;
 `;
 
 export const InputContainer = styled.div`
@@ -52,9 +53,10 @@ export const Input = styled.input.attrs({
   :focus { }
 `;
 
-export const Texto = styled.button`
+export const Botao = styled.button`
   text-transform: uppercase;
   background: none;
   border: none;
   color: #ffffff;
+  user-select: none;
 `;
