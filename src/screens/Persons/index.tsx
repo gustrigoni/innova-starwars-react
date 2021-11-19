@@ -47,7 +47,7 @@ export function Persons() {
 
   async function getPersons(params: PersonsRequestParams) {
 
-    const { data } = await axios.get(`http://innova-starwars-api.herokuapp.com/persons/${params.name}`, { params: { page: params.page } });
+    const { data } = await axios.get(`/persons/${params.name}`, { params: { page: params.page } });
 
     console.log(data);
 

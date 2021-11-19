@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { ToastContainer } from 'react-toastify';
 
 import './assets/css/main.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+import { ToastContainer } from 'react-toastify';
 import { AxiosConfig } from './AxiosConfig';
 import { Routes } from './Routes';
 

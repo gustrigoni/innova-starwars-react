@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 export function AxiosConfig() {
 
   // add axios config bases
-  axios.defaults.baseURL = 'https://innova-starwars-api.herokuapp.com/';
+  axios.defaults.baseURL = 'https://innova-starwars-api.herokuapp.com';
 
   // check request
   axios.interceptors.request.use(request => {
