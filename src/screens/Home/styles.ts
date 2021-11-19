@@ -53,7 +53,7 @@ export const Input = styled.input.attrs({
   :focus { }
 `;
 
-export const Botao = styled.button`
+export const Button = styled.button`
   text-transform: uppercase;
   background: none;
   border: none;

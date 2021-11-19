@@ -2,11 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import './assets/css/main.css';
-import { Home } from './screens/Home';
+import { Search } from './screens/Search';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Home />
+    <Search />
   </React.StrictMode>,
   document.getElementById('root')
 );
