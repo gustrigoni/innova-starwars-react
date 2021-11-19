@@ -1,5 +1,3 @@
-import React from "react";
-
 import {
   BrowserRouter as Router,
   Routes as Routing,
@@ -9,19 +7,21 @@ import {
 import { Home } from "./../screens/Home";
 import { Search } from "../screens/Search";
 import { Profile } from "../screens/Profile";
+import { useSearch } from "../SearchContext";
 
 export function Routes() {
-  return (
+
+  const { personData } = useSearch();
+
+  return <Router>
     <>
-      <Router>
-        <>
-          <Routing>
-            <Route path='*' element={<Home />} />
-            <Route path="search" element={<Search />} />
-            <Route path="profile" element={<Profile />} />
-          </Routing>
-        </>
-      </Router>
+      <Routing>
+        <Route path='*' element={<Home />} />
+        <Route path="search" element={<Search />} />
+        {/* check above 1 beacuse gender is a default object */}
+        <Route path="profile" element={Object.keys(personData).length > 1 ? <Profile /> : <Home />} />
+      </Routing>
     </>
-  );
+  </Router>
+
 }

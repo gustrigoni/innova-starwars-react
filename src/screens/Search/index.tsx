@@ -87,75 +87,74 @@ export function Search() {
 
   const { register, handleSubmit } = useForm<FormValues>();
 
-  return (
-    <Container>
-      <Row>
-        <Form onSubmit={handleSubmit(handleSearch)}>
-          <Logo />
-          <Input
-            {...register("name")}
-          />
-        </Form >
-        <Col>
-          {!loading ?
-            <>
-              <Title>Resultado</Title>
-              <Description>{`${persons.length} ${persons.length > 1 ? 'personagens encontrados' : 'personagem encontrado'}`}.</Description>
-            </>
-            :
-            <>
-              <Title>Carregando...</Title>
-            </>
-          }
+  return <Container>
+    <Row>
+      <Form onSubmit={handleSubmit(handleSearch)}>
+        <Logo />
+        <Input
+          {...register("name")}
+        />
+      </Form >
+      <Col>
+        {!loading ?
+          <>
+            <Title>Resultado</Title>
+            <Description>{`${persons.length} ${persons.length > 1 ? 'personagens encontrados' : 'personagem encontrado'}`}.</Description>
+          </>
+          :
+          <>
+            <Title>Carregando...</Title>
+          </>
+        }
 
+      </Col>
+      <List>
+        <Col>
+          {!loading && persons.map((person: PersonInterface, index) => {
+            return <Person
+              key={index}
+              name={person.name}
+              gender={person.gender}
+              data={person}
+            />
+          })}
         </Col>
-        <List>
-          <Col>
-            {!loading && persons.map((person: PersonInterface, index) => {
-              return <Person
-                key={index}
-                name={person.name}
-                gender={person.gender}
-              />
-            })}
-          </Col>
-        </List>
-        <Footer>
-          <Button
-            onClick={() => {
-              return navigate('/');
-            }}
-          >
-            Home
-          </Button>
-          <ButtonContainer>
-            {!loading && pagination.previous &&
-              <Button
-                onClick={() => {
-                  setPage(oldPage => {
-                    oldPage--;
-                    return oldPage;
-                  });
-                }}
-              >
-                Voltar
-              </Button>
-            }
-            {!loading && pagination.next &&
-              <Button
-                onClick={() => {
-                  setPage(oldPage => {
-                    oldPage++;
-                    return oldPage;
-                  });
-                }}
-              >
-                Próximo
-              </Button>
-            }
-          </ButtonContainer>
-        </Footer>
-      </Row>
-    </Container>
-  );
+      </List>
+      <Footer>
+        <Button
+          onClick={() => {
+            return navigate('/');
+          }}
+        >
+          Home
+        </Button>
+        <ButtonContainer>
+          {!loading && pagination.previous &&
+            <Button
+              onClick={() => {
+                setPage(oldPage => {
+                  oldPage--;
+                  return oldPage;
+                });
+              }}
+            >
+              Voltar
+            </Button>
+          }
+          {!loading && pagination.next &&
+            <Button
+              onClick={() => {
+                setPage(oldPage => {
+                  oldPage++;
+                  return oldPage;
+                });
+              }}
+            >
+              Próximo
+            </Button>
+          }
+        </ButtonContainer>
+      </Footer>
+    </Row>
+  </Container>
 }

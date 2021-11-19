@@ -1,4 +1,7 @@
-import { Movies } from '../../components/Movies';
+import { useEffect, useState } from 'react';
+import { Movies, Movie } from '../../components/Movies';
+import { useSearch } from '../../SearchContext';
+import axios from 'axios';
 
 import {
   Container,
@@ -13,31 +16,69 @@ import {
 } from './styles';
 
 export function Profile() {
+
+  const { personData } = useSearch();
+
+  const [movies, setMovies] = useState<Movie[]>([]);
+
+  function translateGender() {
+    switch (personData.gender.toLocaleLowerCase()) {
+      case "male":
+        return '👦 masculino';
+      case "female":
+        return '👧 feminino';
+      case "hermaphrodite":
+        return '🦄 hermafrodita';
+      default:
+        return '🤖 não definido';
+    }
+  }
+
+  /**
+   * Get movies data by person
+   */
+  async function getMovies() {
+
+    // search movies by person
+    const { data } = await axios.get('/movies', {
+      params: {
+        url: personData.films
+      }
+    });
+
+    // define the movies data
+    setMovies(data);
+
+  }
+
+  useEffect(() => {
+    getMovies();
+    console.log(personData)
+  }, [])
+
   return <Container>
     <Person>
-      <Picture src={'https://vignette.wikia.nocookie.net/starwars/images/7/7f/Jabba_SWSB.png'} />
-      <Name>Yoda</Name>
+      <Picture src={personData.image} />
+      <Name>{personData.name}</Name>
     </Person>
     <About>
       <Col>
         <Row>
-          <Info label>Ano de nascimento:</Info>
-          <Info>🎂 896BBY</Info>
+          <Info label={true}>Ano de nascimento:</Info>
+          <Info>🎂 {personData.birth}</Info>
         </Row>
         <Row >
-          <Info label>Cor dos olhos:</Info>
-          <Info>👀 blue</Info>
+          <Info label={true}>Cor dos olhos:</Info>
+          <Info>👀 {personData.eyeColor}</Info>
         </Row>
         <Row>
-          <Info label>Gênero:</Info>
-          <Info>👧 feminino 🤖 não definido</Info>
+          <Info label={true}>Gênero:</Info>
+          <Info>{translateGender()}</Info>
         </Row>
       </Col>
       <Col>
         <Title>📺 Filmes:</Title>
-        <Movies
-          data={Array(50).fill({ name: 'aa', description: 'aasdajshd' })}
-        />
+        <Movies data={movies} />
       </Col>
     </About>
   </Container>

@@ -1,15 +1,17 @@
-
-import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Container,
   Name,
   Button,
-} from './styles'
+} from './styles';
+
+import { useSearch } from '../../SearchContext';
 
 interface Props {
   name: string;
   gender: string;
+  data: PersonInterface;
 }
 
 export interface PersonInterface {
@@ -17,13 +19,19 @@ export interface PersonInterface {
   birth: string;
   gender: string;
   eyeColor: string;
-  films: string[];
   image: string;
+  films?: string[];
 }
 
 
 export function Person(props: Props) {
 
+  const { setPersonData } = useSearch();
+  const navigate = useNavigate();
+
+  /**
+   * Returns emojis by gender
+   */
   function emojiByGender() {
     switch (props.gender.toLocaleLowerCase()) {
       case "male":
@@ -37,8 +45,18 @@ export function Person(props: Props) {
     }
   }
 
+  /**
+   * When users click in the button 'visualizar'.
+   */
+  function handleClick() {
+    setPersonData(props.data);
+    navigate('/profile');
+  }
+
   return <Container>
     <Name>{emojiByGender()} {props.name}</Name>
-    <Button>Visualizar</Button>
+    <Button onClick={handleClick}>
+      Visualizar
+    </Button>
   </Container>
 }

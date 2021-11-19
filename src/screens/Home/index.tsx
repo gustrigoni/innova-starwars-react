@@ -23,21 +23,19 @@ export function Home() {
     navigate(`/search?name=${keyword}`);
   }
 
-  return (
-    <Container>
-      <Row>
-        <Logo />
-        <InputContainer onSubmit={handleSubmit}>
-          <Input
-            onChange={handleInput}
-          />
-        </InputContainer>
-      </Row>
-      <Button
-        onClick={() => navigate('/search')}
-      >
-        ver todos
-      </Button>
-    </Container>
-  );
+  return <Container>
+    <Row>
+      <Logo />
+      <InputContainer onSubmit={handleSubmit}>
+        <Input
+          onChange={handleInput}
+        />
+      </InputContainer>
+    </Row>
+    <Button
+      onClick={() => navigate('/search')}
+    >
+      ver todos
+    </Button>
+  </Container>
 }

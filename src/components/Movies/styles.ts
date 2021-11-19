@@ -15,4 +15,8 @@ export const Title = styled.span`
 export const Description = styled.span`
   font-size: 0.7rem;
   color: #AAAAAA;
+  margin-bottom: 5%;
+  &:last-child{
+    margin-bottom: 0px;
+  }
 `;

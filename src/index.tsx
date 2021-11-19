@@ -7,6 +7,7 @@ import './assets/css/main.css';
 import { ToastContainer } from 'react-toastify';
 import { AxiosConfig } from './AxiosConfig';
 import { Routes } from './Routes';
+import { SearchProvider } from './SearchContext';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -23,7 +24,9 @@ ReactDOM.render(
       pauseOnHover
     />
     <AxiosConfig />
-    <Routes />
+    <SearchProvider>
+      <Routes />
+    </SearchProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
