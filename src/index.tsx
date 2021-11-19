@@ -1,9 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-
+import 'react-toastify/dist/ReactToastify.css';
 import './assets/css/main.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { ToastContainer } from 'react-toastify';
 import { AxiosConfig } from './AxiosConfig';
@@ -18,6 +17,7 @@ ReactDOM.render(
       newestOnTop={false}
       closeOnClick
       rtl={false}
+      theme={'dark'}
       pauseOnFocusLoss
       draggable
       pauseOnHover
