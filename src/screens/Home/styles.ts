@@ -28,7 +28,7 @@ export const Logo = styled.img.attrs({
   user-select: none;
 `;
 
-export const InputContainer = styled.div`
+export const InputContainer = styled.form`
   width: 100%;
   margin-top: 20px;
   margin-bottom: 35px;

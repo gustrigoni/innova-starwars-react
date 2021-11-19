@@ -1,4 +1,8 @@
+import axios from 'axios';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Person } from '../../components/Person';
+
 import {
   Container,
   Row,
@@ -11,10 +15,44 @@ import {
   Footer,
   Button,
   ButtonContainer,
-
 } from './styles';
 
-export function Search() {
+interface PersonsRequestParams {
+  name: string | null;
+  page: string | null;
+}
+
+export function Persons() {
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+
+    // get queries from route
+    const name = searchParams.get('name');
+    const page = searchParams.get('page');
+
+    // ger all persons
+    getPersons({
+      name,
+      page
+    });
+
+    //setSearchParams({
+    // ...searchParams,
+    // name: 'teste'
+    // });
+
+  });
+
+  async function getPersons(params: PersonsRequestParams) {
+
+    const { data } = await axios.get(`http://innova-starwars-api.herokuapp.com/persons/${params.name}`, { params: { page: params.page } });
+
+    console.log(data);
+
+  }
+
   return (
     <Container>
       <Row>

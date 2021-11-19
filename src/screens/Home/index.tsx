@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Row,
@@ -8,12 +10,27 @@ import {
 } from './styles';
 
 export function Home() {
+
+  const [keyword, setKeyword] = useState<string>('');
+
+  const navigate = useNavigate();
+
+  function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
+    setKeyword(e.currentTarget.value);
+  }
+
+  function handleSubmit() {
+    navigate(`/persons?name=${keyword}`);
+  }
+
   return (
     <Container>
       <Row>
         <Logo />
-        <InputContainer>
-          <Input />
+        <InputContainer onSubmit={handleSubmit}>
+          <Input
+            onChange={handleInput}
+          />
         </InputContainer>
       </Row>
       <Button>ver todos</Button>
