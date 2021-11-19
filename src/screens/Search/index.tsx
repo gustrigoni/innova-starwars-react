@@ -8,7 +8,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import {
   Container,
   Row,
-  Top,
+  Form,
   Logo,
   Input,
   Col,
@@ -62,7 +62,6 @@ export function Search() {
   /**
    * Handle the search
    */
-
   const handleSearch: SubmitHandler<FormValues> = (data) => {
     setName(data.name)
     setPage(1);
@@ -91,10 +90,12 @@ export function Search() {
   return (
     <Container>
       <Row>
-        <Top onSubmit={handleSubmit(handleSearch)}>
+        <Form onSubmit={handleSubmit(handleSearch)}>
           <Logo />
-          <Input {...register("name")} />
-        </Top>
+          <Input
+            {...register("name")}
+          />
+        </Form >
         <Col>
           {!loading ?
             <>

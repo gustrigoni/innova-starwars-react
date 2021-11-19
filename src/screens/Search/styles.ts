@@ -24,7 +24,7 @@ export const Row = styled.div`
   overflow: auto;
 `;
 
-export const Top = styled.form`
+export const Form = styled.form`
   width: 100%;
   margin-top: 5%;
   margin-bottom: 5%;
