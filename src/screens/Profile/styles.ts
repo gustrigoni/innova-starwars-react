@@ -24,7 +24,7 @@ export const Person = styled.div`
 `;
 
 export const Picture = styled.img`
-  background-color: red;
+  background-color: #FFC107;
   border-radius: 100%;
   width: 100%;
   height: 100%;

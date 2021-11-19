@@ -53,8 +53,8 @@ export function Profile() {
 
   useEffect(() => {
     getMovies();
-    console.log(personData)
-  }, [])
+    // eslint-disable-next-line
+  }, [personData])
 
   return <Container>
     <Person>
@@ -78,7 +78,7 @@ export function Profile() {
       </Col>
       <Col>
         <Title>📺 Filmes:</Title>
-        <Movies data={movies} />
+        {movies.length === 0 ? <Info>Carregando...</Info> : <Movies data={movies} />}
       </Col>
     </About>
   </Container>
