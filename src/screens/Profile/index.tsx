@@ -58,7 +58,7 @@ export function Profile() {
 
   return <Container>
     <Person>
-      <Picture src={personData.image} />
+      <Picture src={personData.image || 'https://bestprofilepictures.com/wp-content/uploads/2020/06/Mandalorian-Tik-Tok-Profile-Picture.jpg'} />
       <Name>{personData.name}</Name>
     </Person>
     <About>
