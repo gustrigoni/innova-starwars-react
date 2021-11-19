@@ -4,6 +4,20 @@ interface InfoInterface {
   label?: boolean;
 }
 
+export const Button = styled.button`
+  border: none;
+  padding: 1% calc(0.4rem + 0.2vw);
+  font-weight: bold;
+  border-radius: 0.3rem;
+  background-color: #FFC107;
+  font-size: 0.7rem;
+  word-wrap: break-word;
+  cursor: pointer;
+  &:last-child{
+    margin-left: 10px;
+  }
+`;
+
 export const Container = styled.div`
   width: 100vw;
   height: 100vh;

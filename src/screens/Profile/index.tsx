@@ -8,12 +8,14 @@ import {
   Person,
   Picture,
   Name,
+  Button,
   About,
   Col,
   Row,
   Info,
   Title,
 } from './styles';
+import { useNavigate } from 'react-router-dom';
 
 export function Profile() {
 
@@ -21,6 +23,18 @@ export function Profile() {
 
   const [movies, setMovies] = useState<Movie[]>([]);
 
+  const navigate = useNavigate();
+
+  /**
+   * Handle button 'voltar'
+   */
+  function handleBack() {
+    navigate(-1);  // back to previous page
+  }
+
+  /**
+   * Get gender with emoji in portuguese
+   */
   function translateGender() {
     switch (personData.gender.toLocaleLowerCase()) {
       case "male":
@@ -59,7 +73,14 @@ export function Profile() {
   return <Container>
     <Person>
       <Picture src={personData.image || 'https://bestprofilepictures.com/wp-content/uploads/2020/06/Mandalorian-Tik-Tok-Profile-Picture.jpg'} />
-      <Name>{personData.name}</Name>
+      <Row>
+        <Name>{personData.name}</Name>
+        <Button
+          onClick={handleBack}
+        >
+          Voltar
+        </Button>
+      </Row>
     </Person>
     <About>
       <Col>
