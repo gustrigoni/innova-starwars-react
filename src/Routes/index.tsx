@@ -5,7 +5,7 @@ import {
   Routes as Routing,
   Route,
 } from "react-router-dom";
-import { Persons } from "../screens/Persons";
+import { Persons } from "./../screens/Persons";
 
 import { Home } from "./../screens/Home";
 

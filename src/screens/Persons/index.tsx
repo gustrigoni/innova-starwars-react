@@ -24,7 +24,7 @@ interface PersonsRequestParams {
 
 export function Persons() {
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
 

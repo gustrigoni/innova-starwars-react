@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import { ToastContainer } from 'react-toastify';
 
 import './assets/css/main.css';
+import { AxiosConfig } from './AxiosConfig';
 import { Routes } from './Routes';
 
 ReactDOM.render(
@@ -19,6 +20,7 @@ ReactDOM.render(
       draggable
       pauseOnHover
     />
+    <AxiosConfig />
     <Routes />
   </React.StrictMode>,
   document.getElementById('root')
