@@ -5,9 +5,10 @@ import {
   Routes as Routing,
   Route,
 } from "react-router-dom";
-import { Search } from "../screens/Search";
 
 import { Home } from "./../screens/Home";
+import { Search } from "../screens/Search";
+import { Profile } from "../screens/Profile";
 
 export function Routes() {
   return (
@@ -17,6 +18,7 @@ export function Routes() {
           <Routing>
             <Route path='*' element={<Home />} />
             <Route path="search" element={<Search />} />
+            <Route path="profile" element={<Profile />} />
           </Routing>
         </>
       </Router>

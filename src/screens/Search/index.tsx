@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Person, PersonInterface } from '../../components/Person';
 import { useForm, SubmitHandler } from "react-hook-form";
