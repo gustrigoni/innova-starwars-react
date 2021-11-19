@@ -5,7 +5,7 @@ import {
   Routes as Routing,
   Route,
 } from "react-router-dom";
-import { Persons } from "./../screens/Persons";
+import { Search } from "../screens/Search";
 
 import { Home } from "./../screens/Home";
 
@@ -15,8 +15,8 @@ export function Routes() {
       <Router>
         <>
           <Routing>
-            <Route path='/' element={<Home />} />
-            <Route path="persons" element={<Persons />} />
+            <Route path='*' element={<Home />} />
+            <Route path="search" element={<Search />} />
           </Routing>
         </>
       </Router>

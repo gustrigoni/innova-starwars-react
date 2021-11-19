@@ -24,9 +24,10 @@ export const Row = styled.div`
   overflow: auto;
 `;
 
-export const Top = styled.div`
+export const Top = styled.form`
   width: 100%;
   margin-top: 5%;
+  margin-bottom: 5%;
   padding: 0px 5%;
   box-sizing: border-box;
   display: flex;
@@ -65,7 +66,6 @@ export const Input = styled.input.attrs({
 export const Col = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 5%;
   padding: 0px 5%;
 `;
 
@@ -85,9 +85,18 @@ export const Description = styled.span`
   margin-top: -0.6rem;
 `;
 
+export const List = styled.div`
+  overflow: auto;
+  height: 47vh;
+  margin-top: 5%;
+  margin-bottom: 10%;
+  max-height: 100%;
+`;
+
 export const Footer = styled.div`
+  background-color: #0E0E0E;
   display: flex;
-  padding: 5% 3% 3% 3%;
+  padding: 3% 3% 3% 3%;
   justify-content: space-between;
   bottom: 0;
   width: 100%;

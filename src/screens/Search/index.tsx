@@ -3,6 +3,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Person, PersonInterface } from '../../components/Person';
+import { useForm, SubmitHandler } from "react-hook-form";
 
 import {
   Container,
@@ -13,6 +14,7 @@ import {
   Col,
   Title,
   Description,
+  List,
   Footer,
   Button,
   ButtonContainer,
@@ -28,7 +30,11 @@ interface Pagination {
   previous?: true;
 }
 
-export function Persons() {
+type FormValues = {
+  name: string;
+};
+
+export function Search() {
 
   const [searchParams] = useSearchParams();
 
@@ -42,8 +48,6 @@ export function Persons() {
 
   useEffect(() => {
 
-    console.log('aaa')
-
     // set loading to true
     setLoading(true);
 
@@ -53,13 +57,15 @@ export function Persons() {
       page
     });
 
-  }, [page]);
+  }, [page, name]);
 
   /**
    * Handle the search
    */
-  function handleSearch({ currentTarget }: React.ChangeEvent<HTMLInputElement>) {
-    setName(currentTarget.value) //react-hook-form
+
+  const handleSearch: SubmitHandler<FormValues> = (data) => {
+    setName(data.name)
+    setPage(1);
   }
 
   /**
@@ -80,16 +86,14 @@ export function Persons() {
 
   }
 
+  const { register, handleSubmit } = useForm<FormValues>();
+
   return (
     <Container>
       <Row>
-        <Top>
+        <Top onSubmit={handleSubmit(handleSearch)}>
           <Logo />
-          <Input
-            onKeyDown={() => {
-              setPage(1);
-            }}
-          />
+          <Input {...register("name")} />
         </Top>
         <Col>
           {!loading ?
@@ -104,15 +108,17 @@ export function Persons() {
           }
 
         </Col>
-        <Col>
-          {!loading && persons.map((person: PersonInterface, index) => {
-            return <Person
-              key={index}
-              name={person.name}
-              gender={person.gender}
-            />
-          })}
-        </Col>
+        <List>
+          <Col>
+            {!loading && persons.map((person: PersonInterface, index) => {
+              return <Person
+                key={index}
+                name={person.name}
+                gender={person.gender}
+              />
+            })}
+          </Col>
+        </List>
         <Footer>
           <Button
             onClick={() => {

@@ -20,7 +20,7 @@ export function Home() {
   }
 
   function handleSubmit() {
-    navigate(`/persons?name=${keyword}`);
+    navigate(`/search?name=${keyword}`);
   }
 
   return (
@@ -33,7 +33,11 @@ export function Home() {
           />
         </InputContainer>
       </Row>
-      <Button>ver todos</Button>
+      <Button
+        onClick={() => navigate('/search')}
+      >
+        ver todos
+      </Button>
     </Container>
   );
 }
