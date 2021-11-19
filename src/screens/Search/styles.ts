@@ -11,9 +11,9 @@ export const Container = styled.div`
 
 export const Row = styled.div`
   width: 765px;
-  max-width: 95%;
+  max-width: 90%;
   height: 840px;
-  max-height: 97%;
+  max-height: 85%;
   border-style: solid;
   border-image-width: 1px;
   border-image-source: linear-gradient(to bottom, #FFC107, rgb(0,0,0));
@@ -92,6 +92,7 @@ export const Footer = styled.div`
   bottom: 0;
   width: 100%;
   box-sizing: border-box;
+  position: absolute;
 `;
 
 export const Button = styled.button`
