@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios from 'axios';
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Person } from '../../components/Person';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Person, PersonInterface } from '../../components/Person';
 
 import {
   Container,
@@ -19,37 +20,63 @@ import {
 
 interface PersonsRequestParams {
   name: string | null;
-  page: string | null;
+  page: number;
+}
+
+interface Pagination {
+  next?: true;
+  previous?: true;
 }
 
 export function Persons() {
 
   const [searchParams] = useSearchParams();
 
+  const [loading, setLoading] = useState(false);
+  const [persons, setPersons] = useState([]);
+  const [pagination, setPagination] = useState<Pagination>({});
+  const [page, setPage] = useState<number>(1);
+  const [name, setName] = useState(searchParams.get('name'));
+
+  const navigate = useNavigate();
+
   useEffect(() => {
 
-    // get queries from route
-    const name = searchParams.get('name');
-    const page = searchParams.get('page');
+    console.log('aaa')
 
-    // ger all persons
+    // set loading to true
+    setLoading(true);
+
+    // get persons data
     getPersons({
-      name,
+      name: name ? `/${name}` : '',
       page
     });
 
-    //setSearchParams({
-    // ...searchParams,
-    // name: 'teste'
-    // });
+  }, [page]);
 
-  });
+  /**
+   * Handle the search
+   */
+  function handleSearch({ currentTarget }: React.ChangeEvent<HTMLInputElement>) {
+    setName(currentTarget.value) //react-hook-form
+  }
 
+  /**
+   * Search Star Wars persons by a keyword
+   */
   async function getPersons(params: PersonsRequestParams) {
 
-    const { data } = await axios.get(`/persons/${params.name}`, { params: { page: params.page } });
+    const { data } = await axios.get(`/persons${params.name}`, { params: { page: params.page } });
 
-    console.log(data);
+    // remove loading
+    setLoading(false);
+
+    // set persons data
+    setPersons(data.persons);
+
+    // set pagination information
+    setPagination(data.pagination);
 
   }
 
@@ -58,31 +85,67 @@ export function Persons() {
       <Row>
         <Top>
           <Logo />
-          <Input />
+          <Input
+            onKeyDown={() => {
+              setPage(1);
+            }}
+          />
         </Top>
         <Col>
-          <Title>Resultado</Title>
-          <Description>84 personagens encontrados.</Description>
+          {!loading ?
+            <>
+              <Title>Resultado</Title>
+              <Description>{`${persons.length} ${persons.length > 1 ? 'personagens encontrados' : 'personagem encontrado'}`}.</Description>
+            </>
+            :
+            <>
+              <Title>Carregando...</Title>
+            </>
+          }
+
         </Col>
         <Col>
-          <Person
-            name={`Yoda`}
-            gender={'male'}
-          />
-          <Person
-            name={`Yoda`}
-            gender={'female'}
-          />
-          <Person
-            name={`Yoda`}
-            gender={'n/a'}
-          />
+          {!loading && persons.map((person: PersonInterface, index) => {
+            return <Person
+              key={index}
+              name={person.name}
+              gender={person.gender}
+            />
+          })}
         </Col>
         <Footer>
-          <Button>Home</Button>
+          <Button
+            onClick={() => {
+              return navigate('/');
+            }}
+          >
+            Home
+          </Button>
           <ButtonContainer>
-            <Button>Voltar</Button>
-            <Button>Próximo</Button>
+            {!loading && pagination.previous &&
+              <Button
+                onClick={() => {
+                  setPage(oldPage => {
+                    oldPage--;
+                    return oldPage;
+                  });
+                }}
+              >
+                Voltar
+              </Button>
+            }
+            {!loading && pagination.next &&
+              <Button
+                onClick={() => {
+                  setPage(oldPage => {
+                    oldPage++;
+                    return oldPage;
+                  });
+                }}
+              >
+                Próximo
+              </Button>
+            }
           </ButtonContainer>
         </Footer>
       </Row>

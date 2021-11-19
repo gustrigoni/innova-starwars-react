@@ -12,6 +12,16 @@ interface Props {
   gender: string;
 }
 
+export interface PersonInterface {
+  name: string;
+  birth: string;
+  gender: string;
+  eyeColor: string;
+  films: string[];
+  image: string;
+}
+
+
 export function Person(props: Props) {
 
   function emojiByGender() {
@@ -20,6 +30,8 @@ export function Person(props: Props) {
         return '👦';
       case "female":
         return '👧';
+      case "hermaphrodite":
+        return '🦄';
       default:
         return '🤖';
     }
