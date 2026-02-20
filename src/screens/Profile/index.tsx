@@ -63,7 +63,7 @@ export function Profile() {
         const filmsData = await fetchMovies(targetCharacter.films);
         setMovies(filmsData);
       } catch (error) {
-        toast.error("Nao foi possivel carregar o personagem.");
+        toast.error("Could not load the character.");
         router.replace(APP_ROUTES.search);
       } finally {
         setIsLoading(false);
@@ -83,27 +83,27 @@ export function Profile() {
         <Picture src={character.image || FALLBACK_PERSON_IMAGE} />
         <Row>
           <Name>{character.name}</Name>
-          <Button onClick={() => router.back()}>Voltar</Button>
+          <Button onClick={() => router.back()}>Back</Button>
         </Row>
       </Person>
       <About>
         <Col>
           <Row>
-            <Info label>Ano de nascimento:</Info>
+            <Info label>Birth year:</Info>
             <Info>🎂 {character.birth}</Info>
           </Row>
           <Row>
-            <Info label>Cor dos olhos:</Info>
+            <Info label>Eye color:</Info>
             <Info>👀 {character.eyeColor}</Info>
           </Row>
           <Row>
-            <Info label>Genero:</Info>
+            <Info label>Gender:</Info>
             <Info>{getGenderLabel(character.gender)}</Info>
           </Row>
         </Col>
         <Col>
-          <Title>📺 Filmes:</Title>
-          {isLoading ? <Info>Carregando...</Info> : <Movies data={movies} />}
+          <Title>📺 Movies:</Title>
+          {isLoading ? <Info>Loading...</Info> : <Movies data={movies} />}
         </Col>
       </About>
     </Container>

@@ -31,7 +31,7 @@ export function getGenderEmoji(gender: Gender): string {
 
 export function getGenderLabel(gender: Gender): string {
   const normalized = String(gender).toLowerCase();
-  return `${getGenderEmoji(normalized)} ${GENDER_LABELS[normalized] ?? "nao definido"}`;
+  return `${getGenderEmoji(normalized)} ${GENDER_LABELS[normalized] ?? "not defined"}`;
 }
 
 export function formatReleaseDate(releaseDate: string): string {

@@ -7,16 +7,17 @@ export const Container = styled.div`
   height: 25vh;
 `;
 
-export const Title = styled.span`
+export const Title = styled.h1`
   font-size: 1rem;
   color: #ffffff;
+  margin: 0;
 `;
 
 export const Description = styled.span`
   font-size: 0.7rem;
-  color: #AAAAAA;
+  color: #aaaaaa;
   margin-bottom: 5%;
-  &:last-child{
+  &:last-child {
     margin-bottom: 0px;
   }
 `;

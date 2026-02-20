@@ -64,7 +64,7 @@ export function Search() {
       } catch (error) {
         setPersons([]);
         setPagination(EMPTY_PAGINATION);
-        toast.error("Nao foi possivel carregar os personagens.");
+        toast.error("Could not load characters.");
       } finally {
         setIsLoading(false);
       }
@@ -92,7 +92,7 @@ export function Search() {
   }
 
   const resultDescription = useMemo(() => {
-    const suffix = persons.length > 1 ? "personagens encontrados" : "personagem encontrado";
+    const suffix = persons.length > 1 ? "characters found" : "character found";
     return `${persons.length} ${suffix}.`;
   }, [persons.length]);
 
@@ -106,11 +106,11 @@ export function Search() {
         <Col>
           {!isLoading ? (
             <>
-              <Title>Resultado</Title>
+              <Title>Result</Title>
               <Description>{resultDescription}</Description>
             </>
           ) : (
-            <Title>Carregando...</Title>
+            <Title>Loading...</Title>
           )}
         </Col>
         <List>
@@ -125,9 +125,9 @@ export function Search() {
           <Button onClick={() => router.push(APP_ROUTES.home)}>Home</Button>
           <ButtonContainer>
             {!isLoading && pagination.previous && (
-              <Button onClick={() => setPage((oldPage) => Math.max(oldPage - 1, 1))}>Voltar</Button>
+              <Button onClick={() => setPage((oldPage) => Math.max(oldPage - 1, 1))}>Back</Button>
             )}
-            {!isLoading && pagination.next && <Button onClick={() => setPage((oldPage) => oldPage + 1)}>Proximo</Button>}
+            {!isLoading && pagination.next && <Button onClick={() => setPage((oldPage) => oldPage + 1)}>Next</Button>}
           </ButtonContainer>
         </Footer>
       </Row>

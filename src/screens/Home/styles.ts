@@ -34,7 +34,7 @@ export const InputContainer = styled.form`
 `;
 
 export const Input = styled.input.attrs({
-  placeholder: "Qual personagem voce deseja procurar?",
+  placeholder: "Which character do you want to search for?",
 })`
   width: 100%;
   height: 90%;

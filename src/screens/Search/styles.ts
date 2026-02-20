@@ -45,7 +45,7 @@ export const Logo = styled.img.attrs({
 `;
 
 export const Input = styled.input.attrs({
-  placeholder: "Qual personagem voce deseja procurar?",
+  placeholder: "Which character do you want to search for?",
 })`
   width: 555px;
   max-width: 70%;

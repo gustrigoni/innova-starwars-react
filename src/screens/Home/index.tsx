@@ -14,7 +14,9 @@ export function Home() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    router.push(`${APP_ROUTES.search}?name=${encodeURIComponent(keyword.trim())}`);
+    router.push(
+      `${APP_ROUTES.search}?name=${encodeURIComponent(keyword.trim())}`,
+    );
   }
 
   return (
@@ -25,7 +27,7 @@ export function Home() {
           <Input onChange={handleInput} />
         </InputContainer>
       </Row>
-      <Button onClick={() => router.push(APP_ROUTES.search)}>ver todos</Button>
+      <Button onClick={() => router.push(APP_ROUTES.search)}>View all</Button>
     </Container>
   );
 }

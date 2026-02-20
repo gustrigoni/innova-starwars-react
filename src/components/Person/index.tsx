@@ -27,7 +27,7 @@ export function Person({ name, gender, data }: PersonProps) {
       <Name>
         {getGenderEmoji(gender)} {name}
       </Name>
-      <Button onClick={handleOpenCharacter}>Visualizar</Button>
+      <Button onClick={handleOpenCharacter}>View</Button>
     </Container>
   );
 }
