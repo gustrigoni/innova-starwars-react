@@ -1,8 +1,14 @@
-﻿import styled, { css } from "styled-components";
+﻿import styled, { css, keyframes } from "styled-components";
 
 interface InfoInterface {
   label?: boolean;
 }
+
+const pulse = keyframes`
+  0% { opacity: 0.45; }
+  50% { opacity: 1; }
+  100% { opacity: 0.45; }
+`;
 
 export const Button = styled.button`
   border: none;
@@ -165,4 +171,31 @@ export const ResourceMeta = styled.p`
 export const EmptyState = styled.span`
   color: #9a9a9a;
   font-size: 0.9rem;
+`;
+
+export const SkeletonCircle = styled.div`
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #1a1a1a, #232323, #1a1a1a);
+  animation: ${pulse} 1.25s ease-in-out infinite;
+  border: 3px solid #1b1b1b;
+`;
+
+export const SkeletonLine = styled.div<{ width?: string }>`
+  width: ${(props) => props.width ?? "100%"};
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #1a1a1a, #262626, #1a1a1a);
+  animation: ${pulse} 1.2s ease-in-out infinite;
+`;
+
+export const SkeletonCard = styled.div`
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #101010;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;

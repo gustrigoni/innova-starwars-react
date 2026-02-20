@@ -31,7 +31,6 @@ import {
   Col,
   Row,
   Info,
-  Title,
   Grid,
   Section,
   SectionTitle,
@@ -40,6 +39,9 @@ import {
   ResourceName,
   ResourceMeta,
   EmptyState,
+  SkeletonCircle,
+  SkeletonLine,
+  SkeletonCard,
 } from "./styles";
 
 function normalizeValue(value: string): string {
@@ -48,6 +50,21 @@ function normalizeValue(value: string): string {
   }
 
   return value;
+}
+
+function SectionSkeleton({ cards = 2 }: { cards?: number }) {
+  return (
+    <SectionBody>
+      {Array.from({ length: cards }).map((_, index) => (
+        <SkeletonCard key={index}>
+          <SkeletonLine width="55%" />
+          <SkeletonLine width="80%" />
+          <SkeletonLine width="72%" />
+          <SkeletonLine width="66%" />
+        </SkeletonCard>
+      ))}
+    </SectionBody>
+  );
 }
 
 export function Profile() {
@@ -122,16 +139,12 @@ export function Profile() {
     loadCharacter();
   }, [router.isReady, router.query.name, personData, router, setPersonData]);
 
-  if (!character) {
-    return null;
-  }
-
   return (
     <Container>
       <Person>
-        <Picture src={character.image || FALLBACK_PERSON_IMAGE} />
+        {character ? <Picture src={character.image || FALLBACK_PERSON_IMAGE} /> : <SkeletonCircle />}
         <Row>
-          <Name>{character.name}</Name>
+          {character ? <Name>{character.name}</Name> : <SkeletonLine width="240px" />}
           <Button onClick={() => router.back()}>Back</Button>
         </Row>
       </Person>
@@ -140,82 +153,104 @@ export function Profile() {
           <Section>
             <SectionTitle>Overview</SectionTitle>
             <SectionBody>
-              <Col>
-                <Row>
-                  <Info label>Birth year:</Info>
-                  <Info>🎂 {normalizeValue(character.birth)}</Info>
-                </Row>
-                <Row>
-                  <Info label>Eye color:</Info>
-                  <Info>👀 {normalizeValue(character.eyeColor)}</Info>
-                </Row>
-                <Row>
-                  <Info label>Gender:</Info>
-                  <Info>{getGenderLabel(character.gender)}</Info>
-                </Row>
-              </Col>
+              {character ? (
+                <Col>
+                  <Row>
+                    <Info label>Birth year:</Info>
+                    <Info>🎂 {normalizeValue(character.birth)}</Info>
+                  </Row>
+                  <Row>
+                    <Info label>Eye color:</Info>
+                    <Info>👀 {normalizeValue(character.eyeColor)}</Info>
+                  </Row>
+                  <Row>
+                    <Info label>Gender:</Info>
+                    <Info>{getGenderLabel(character.gender)}</Info>
+                  </Row>
+                </Col>
+              ) : (
+                <>
+                  <SkeletonLine width="92%" />
+                  <SkeletonLine width="88%" />
+                  <SkeletonLine width="78%" />
+                </>
+              )}
             </SectionBody>
           </Section>
 
           <Section>
             <SectionTitle>Movies</SectionTitle>
-            <SectionBody>
-              {isLoading ? <EmptyState>Loading...</EmptyState> : <Movies data={movies} />}
-            </SectionBody>
+            {isLoading ? (
+              <SectionSkeleton />
+            ) : (
+              <SectionBody>{movies.length > 0 ? <Movies data={movies} /> : <EmptyState>No movies available.</EmptyState>}</SectionBody>
+            )}
           </Section>
 
           <Section>
             <SectionTitle>Planet</SectionTitle>
-            <SectionBody>
-              {planets.length === 0 ? (
-                <EmptyState>No known planet data.</EmptyState>
-              ) : (
-                planets.map((planet) => (
-                  <ResourceCard key={planet.name}>
-                    <ResourceName>{planet.name}</ResourceName>
-                    <ResourceMeta>Climate: {normalizeValue(planet.climate)}</ResourceMeta>
-                    <ResourceMeta>Terrain: {normalizeValue(planet.terrain)}</ResourceMeta>
-                    <ResourceMeta>Population: {normalizeValue(planet.population)}</ResourceMeta>
-                  </ResourceCard>
-                ))
-              )}
-            </SectionBody>
+            {isLoading ? (
+              <SectionSkeleton cards={1} />
+            ) : (
+              <SectionBody>
+                {planets.length === 0 ? (
+                  <EmptyState>No known planet data.</EmptyState>
+                ) : (
+                  planets.map((planet) => (
+                    <ResourceCard key={planet.name}>
+                      <ResourceName>{planet.name}</ResourceName>
+                      <ResourceMeta>Climate: {normalizeValue(planet.climate)}</ResourceMeta>
+                      <ResourceMeta>Terrain: {normalizeValue(planet.terrain)}</ResourceMeta>
+                      <ResourceMeta>Population: {normalizeValue(planet.population)}</ResourceMeta>
+                    </ResourceCard>
+                  ))
+                )}
+              </SectionBody>
+            )}
           </Section>
 
           <Section>
             <SectionTitle>Species</SectionTitle>
-            <SectionBody>
-              {species.length === 0 ? (
-                <EmptyState>No species data available.</EmptyState>
-              ) : (
-                species.map((item) => (
-                  <ResourceCard key={item.name}>
-                    <ResourceName>{item.name}</ResourceName>
-                    <ResourceMeta>Classification: {normalizeValue(item.classification)}</ResourceMeta>
-                    <ResourceMeta>Language: {normalizeValue(item.language)}</ResourceMeta>
-                    <ResourceMeta>Lifespan: {normalizeValue(item.averageLifespan)}</ResourceMeta>
-                  </ResourceCard>
-                ))
-              )}
-            </SectionBody>
+            {isLoading ? (
+              <SectionSkeleton cards={1} />
+            ) : (
+              <SectionBody>
+                {species.length === 0 ? (
+                  <EmptyState>No species data available.</EmptyState>
+                ) : (
+                  species.map((item) => (
+                    <ResourceCard key={item.name}>
+                      <ResourceName>{item.name}</ResourceName>
+                      <ResourceMeta>Classification: {normalizeValue(item.classification)}</ResourceMeta>
+                      <ResourceMeta>Language: {normalizeValue(item.language)}</ResourceMeta>
+                      <ResourceMeta>Lifespan: {normalizeValue(item.averageLifespan)}</ResourceMeta>
+                    </ResourceCard>
+                  ))
+                )}
+              </SectionBody>
+            )}
           </Section>
 
           <Section>
             <SectionTitle>Starships</SectionTitle>
-            <SectionBody>
-              {starships.length === 0 ? (
-                <EmptyState>No starships linked to this character.</EmptyState>
-              ) : (
-                starships.map((starship) => (
-                  <ResourceCard key={starship.name}>
-                    <ResourceName>{starship.name}</ResourceName>
-                    <ResourceMeta>Model: {normalizeValue(starship.model)}</ResourceMeta>
-                    <ResourceMeta>Class: {normalizeValue(starship.starshipClass)}</ResourceMeta>
-                    <ResourceMeta>Manufacturer: {normalizeValue(starship.manufacturer)}</ResourceMeta>
-                  </ResourceCard>
-                ))
-              )}
-            </SectionBody>
+            {isLoading ? (
+              <SectionSkeleton cards={1} />
+            ) : (
+              <SectionBody>
+                {starships.length === 0 ? (
+                  <EmptyState>No starships linked to this character.</EmptyState>
+                ) : (
+                  starships.map((starship) => (
+                    <ResourceCard key={starship.name}>
+                      <ResourceName>{starship.name}</ResourceName>
+                      <ResourceMeta>Model: {normalizeValue(starship.model)}</ResourceMeta>
+                      <ResourceMeta>Class: {normalizeValue(starship.starshipClass)}</ResourceMeta>
+                      <ResourceMeta>Manufacturer: {normalizeValue(starship.manufacturer)}</ResourceMeta>
+                    </ResourceCard>
+                  ))
+                )}
+              </SectionBody>
+            )}
           </Section>
         </Grid>
       </About>
