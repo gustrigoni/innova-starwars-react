@@ -1,32 +1,48 @@
-﻿import { createContext, type ReactNode, useContext, useState } from "react";
-import type { PersonInterface } from "./lib/contracts";
+﻿import { createContext, type ReactNode, useContext, useMemo, useState } from "react";
+import type { Person } from "./lib/contracts";
 
-interface ContextProps {
-  personData: PersonInterface;
-  setPersonData(props: PersonInterface): void;
+interface SearchContextValue {
+  personData: Person;
+  setPersonData(person: Person): void;
 }
 
-interface Props {
+interface SearchProviderProps {
   children: ReactNode;
 }
 
-const Context = createContext({} as ContextProps);
+const EMPTY_PERSON: Person = {
+  name: "",
+  birth: "",
+  gender: "",
+  eyeColor: "",
+  image: "",
+  films: [],
+};
 
-function SearchProvider({ children }: Props) {
-  const [personData, setPersonData] = useState<PersonInterface>({
-    name: "",
-    birth: "",
-    gender: "",
-    eyeColor: "",
-    image: "",
-    films: [],
-  });
+const SearchContext = createContext<SearchContextValue | null>(null);
 
-  return <Context.Provider value={{ personData, setPersonData }}>{children}</Context.Provider>;
+function SearchProvider({ children }: SearchProviderProps) {
+  const [personData, setPersonData] = useState<Person>(EMPTY_PERSON);
+
+  const value = useMemo(
+    () => ({
+      personData,
+      setPersonData,
+    }),
+    [personData]
+  );
+
+  return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>;
 }
 
 function useSearch() {
-  return useContext(Context);
+  const context = useContext(SearchContext);
+
+  if (!context) {
+    throw new Error("useSearch must be used within SearchProvider.");
+  }
+
+  return context;
 }
 
 export { SearchProvider, useSearch };

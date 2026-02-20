@@ -1,8 +1,11 @@
-﻿import { useEffect, useState, type FormEvent } from "react";
+﻿import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 
 import { Person } from "../../components/Person";
-import type { Pagination, PersonInterface, PersonsApiResponse } from "../../lib/contracts";
+import { fetchPersons } from "../../lib/api";
+import { APP_ROUTES } from "../../lib/constants";
+import type { Pagination, Person as PersonModel } from "../../lib/contracts";
 
 import {
   Container,
@@ -19,57 +22,79 @@ import {
   ButtonContainer,
 } from "./styles";
 
+const EMPTY_PAGINATION: Pagination = {
+  next: false,
+  previous: false,
+};
+
 export function Search() {
   const router = useRouter();
 
-  const [loading, setLoading] = useState(false);
-  const [persons, setPersons] = useState<PersonInterface[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({});
-  const [page, setPage] = useState<number>(1);
-  const [name, setName] = useState<string>("");
-  const [searchInput, setSearchInput] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [persons, setPersons] = useState<PersonModel[]>([]);
+  const [pagination, setPagination] = useState<Pagination>(EMPTY_PAGINATION);
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchInput, setSearchInput] = useState("");
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!router.isReady) {
+      return;
+    }
 
     const queryName = typeof router.query.name === "string" ? router.query.name : "";
-    setName(queryName);
+
+    setSearchTerm(queryName);
     setSearchInput(queryName);
     setPage(1);
   }, [router.isReady, router.query.name]);
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!router.isReady) {
+      return;
+    }
 
-    const load = async () => {
-      setLoading(true);
+    async function loadPersons() {
+      try {
+        setIsLoading(true);
+        const response = await fetchPersons({ page, name: searchTerm || undefined });
 
-      const pathname = name ? `/api/persons/${encodeURIComponent(name)}` : "/api/persons";
-      const response = await fetch(`${pathname}?page=${page}`);
-      const data = (await response.json()) as PersonsApiResponse;
+        setPersons(response.persons);
+        setPagination(response.pagination);
+      } catch (error) {
+        setPersons([]);
+        setPagination(EMPTY_PAGINATION);
+        toast.error("Nao foi possivel carregar os personagens.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
-      setPersons(data.persons ?? []);
-      setPagination(data.pagination ?? {});
-      setLoading(false);
-    };
+    loadPersons();
+  }, [page, searchTerm, router.isReady]);
 
-    load();
-  }, [page, name, router.isReady]);
+  function updateSearchRoute(term: string) {
+    if (term) {
+      router.replace(`${APP_ROUTES.search}?name=${encodeURIComponent(term)}`, undefined, { shallow: true });
+      return;
+    }
+
+    router.replace(APP_ROUTES.search, undefined, { shallow: true });
+  }
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const nextName = searchInput.trim();
-    setName(nextName);
+    const normalizedTerm = searchInput.trim();
+    setSearchTerm(normalizedTerm);
     setPage(1);
-
-    if (nextName) {
-      router.replace(`/search?name=${encodeURIComponent(nextName)}`, undefined, { shallow: true });
-      return;
-    }
-
-    router.replace("/search", undefined, { shallow: true });
+    updateSearchRoute(normalizedTerm);
   }
+
+  const resultDescription = useMemo(() => {
+    const suffix = persons.length > 1 ? "personagens encontrados" : "personagem encontrado";
+    return `${persons.length} ${suffix}.`;
+  }, [persons.length]);
 
   return (
     <Container>
@@ -79,12 +104,10 @@ export function Search() {
           <Input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} />
         </Form>
         <Col>
-          {!loading ? (
+          {!isLoading ? (
             <>
               <Title>Resultado</Title>
-              <Description>
-                {`${persons.length} ${persons.length > 1 ? "personagens encontrados" : "personagem encontrado"}.`}
-              </Description>
+              <Description>{resultDescription}</Description>
             </>
           ) : (
             <Title>Carregando...</Title>
@@ -92,33 +115,19 @@ export function Search() {
         </Col>
         <List>
           <Col>
-            {!loading &&
-              persons.map((person, index) => (
-                <Person key={`${person.name}-${index}`} name={person.name} gender={person.gender} data={person} />
+            {!isLoading &&
+              persons.map((person) => (
+                <Person key={person.name} name={person.name} gender={person.gender} data={person} />
               ))}
           </Col>
         </List>
         <Footer>
-          <Button onClick={() => router.push("/")}>Home</Button>
+          <Button onClick={() => router.push(APP_ROUTES.home)}>Home</Button>
           <ButtonContainer>
-            {!loading && pagination.previous && (
-              <Button
-                onClick={() => {
-                  setPage((oldPage) => Math.max(oldPage - 1, 1));
-                }}
-              >
-                Voltar
-              </Button>
+            {!isLoading && pagination.previous && (
+              <Button onClick={() => setPage((oldPage) => Math.max(oldPage - 1, 1))}>Voltar</Button>
             )}
-            {!loading && pagination.next && (
-              <Button
-                onClick={() => {
-                  setPage((oldPage) => oldPage + 1);
-                }}
-              >
-                Proximo
-              </Button>
-            )}
+            {!isLoading && pagination.next && <Button onClick={() => setPage((oldPage) => oldPage + 1)}>Proximo</Button>}
           </ButtonContainer>
         </Footer>
       </Row>

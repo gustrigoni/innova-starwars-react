@@ -1,9 +1,13 @@
 ﻿import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 
 import { Movies } from "../../components/Movies";
 import { useSearch } from "../../SearchContext";
-import type { Movie } from "../../lib/contracts";
+import { fetchMovies, fetchPersonByName } from "../../lib/api";
+import { APP_ROUTES, FALLBACK_PERSON_IMAGE } from "../../lib/constants";
+import type { Movie, Person as PersonModel } from "../../lib/contracts";
+import { getGenderLabel } from "../../lib/formatters";
 
 import {
   Container,
@@ -19,84 +23,87 @@ import {
 } from "./styles";
 
 export function Profile() {
-  const { personData } = useSearch();
+  const { personData, setPersonData } = useSearch();
+  const [character, setCharacter] = useState<PersonModel | null>(null);
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
 
-  function handleBack() {
-    router.back();
-  }
-
-  function translateGender() {
-    switch ((personData.gender || "").toLowerCase()) {
-      case "male":
-        return "👦 masculino";
-      case "female":
-        return "👧 feminino";
-      case "hermaphrodite":
-        return "🦄 hermafrodita";
-      default:
-        return "🤖 nao definido";
-    }
-  }
-
   useEffect(() => {
-    if (!personData?.name) {
-      router.replace("/");
+    if (!router.isReady) {
       return;
     }
 
-    const loadMovies = async () => {
-      const urls = personData.films ?? [];
-      if (urls.length === 0) {
-        setMovies([]);
-        return;
+    const queryName = typeof router.query.name === "string" ? router.query.name.trim() : "";
+
+    async function loadCharacter() {
+      try {
+        setIsLoading(true);
+
+        let targetCharacter: PersonModel | null = null;
+
+        if (queryName) {
+          targetCharacter = await fetchPersonByName(queryName);
+        } else if (personData.name) {
+          targetCharacter = personData;
+        }
+
+        if (!targetCharacter) {
+          router.replace(APP_ROUTES.search);
+          return;
+        }
+
+        setCharacter(targetCharacter);
+
+        if (queryName && targetCharacter.name !== personData.name) {
+          setPersonData(targetCharacter);
+        }
+
+        const filmsData = await fetchMovies(targetCharacter.films);
+        setMovies(filmsData);
+      } catch (error) {
+        toast.error("Nao foi possivel carregar o personagem.");
+        router.replace(APP_ROUTES.search);
+      } finally {
+        setIsLoading(false);
       }
+    }
 
-      const params = new URLSearchParams();
-      urls.forEach((url) => params.append("url", url));
+    loadCharacter();
+  }, [router.isReady, router.query.name, personData, router, setPersonData]);
 
-      const response = await fetch(`/api/movies?${params.toString()}`);
-      const data = (await response.json()) as Movie[];
-      setMovies(data);
-    };
-
-    loadMovies();
-  }, [personData, router]);
+  if (!character) {
+    return null;
+  }
 
   return (
     <Container>
       <Person>
-        <Picture
-          src={
-            personData.image ||
-            "https://akabab.github.io/starwars-api/api/id/1.jpg"
-          }
-        />
+        <Picture src={character.image || FALLBACK_PERSON_IMAGE} />
         <Row>
-          <Name>{personData.name}</Name>
-          <Button onClick={handleBack}>Voltar</Button>
+          <Name>{character.name}</Name>
+          <Button onClick={() => router.back()}>Voltar</Button>
         </Row>
       </Person>
       <About>
         <Col>
           <Row>
             <Info label>Ano de nascimento:</Info>
-            <Info>🎂 {personData.birth}</Info>
+            <Info>🎂 {character.birth}</Info>
           </Row>
           <Row>
             <Info label>Cor dos olhos:</Info>
-            <Info>👀 {personData.eyeColor}</Info>
+            <Info>👀 {character.eyeColor}</Info>
           </Row>
           <Row>
             <Info label>Genero:</Info>
-            <Info>{translateGender()}</Info>
+            <Info>{getGenderLabel(character.gender)}</Info>
           </Row>
         </Col>
         <Col>
           <Title>📺 Filmes:</Title>
-          {movies.length === 0 ? <Info>Carregando...</Info> : <Movies data={movies} />}
+          {isLoading ? <Info>Carregando...</Info> : <Movies data={movies} />}
         </Col>
       </About>
     </Container>

@@ -1,7 +1,8 @@
-﻿import type { Movie, PersonInterface, PersonsApiResponse } from "./contracts";
+﻿import type { Movie, Person, PersonsApiResponse } from "./contracts";
+import { normalizeName, toHttps } from "./formatters";
 
-const SWAPI_BASE = "https://swapi.dev/api";
-const AKABAB_ALL_URL = "https://akabab.github.io/starwars-api/api/all.json";
+const SWAPI_BASE_URL = "https://swapi.dev/api";
+const AKABAB_ALL_CHARACTERS_URL = "https://akabab.github.io/starwars-api/api/all.json";
 
 interface SwapiListResponse<T> {
   next: string | null;
@@ -28,19 +29,7 @@ interface AkababPerson {
   image: string;
 }
 
-let imagesPromise: Promise<Map<string, string>> | null = null;
-
-function normalizeName(value: string): string {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]/g, "");
-}
-
-function toHttps(url: string): string {
-  return url.replace(/^http:\/\//i, "https://");
-}
+let personImagesPromise: Promise<Map<string, string>> | null = null;
 
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url, {
@@ -55,75 +44,81 @@ async function fetchJson<T>(url: string): Promise<T> {
   return (await response.json()) as T;
 }
 
-async function getImagesMap(): Promise<Map<string, string>> {
-  if (!imagesPromise) {
-    imagesPromise = fetchJson<AkababPerson[]>(AKABAB_ALL_URL).then((data) => {
-      const map = new Map<string, string>();
-      data.forEach((person) => {
-        map.set(normalizeName(person.name), person.image);
+async function getPersonImagesMap(): Promise<Map<string, string>> {
+  if (!personImagesPromise) {
+    personImagesPromise = fetchJson<AkababPerson[]>(AKABAB_ALL_CHARACTERS_URL).then((people) => {
+      const imagesMap = new Map<string, string>();
+
+      people.forEach((person) => {
+        imagesMap.set(normalizeName(person.name), person.image);
       });
-      return map;
+
+      return imagesMap;
     });
   }
 
-  return imagesPromise;
+  return personImagesPromise;
 }
 
-async function mapPerson(person: SwapiPerson): Promise<PersonInterface> {
-  const imageMap = await getImagesMap();
+function mapPagination(data: SwapiListResponse<unknown>) {
+  return {
+    previous: Boolean(data.previous),
+    next: Boolean(data.next),
+  };
+}
+
+async function mapSwapiPerson(person: SwapiPerson): Promise<Person> {
+  const imageByName = await getPersonImagesMap();
 
   return {
     name: person.name,
     birth: person.birth_year,
     gender: person.gender,
     eyeColor: person.eye_color,
-    image: imageMap.get(normalizeName(person.name)) ?? "",
-    films: (person.films ?? []).map((url) => toHttps(url)),
+    image: imageByName.get(normalizeName(person.name)) ?? "",
+    films: (person.films ?? []).map((filmUrl) => toHttps(filmUrl)),
   };
 }
 
-export async function listPersons(page: number): Promise<PersonsApiResponse> {
-  const safePage = Number.isFinite(page) && page > 0 ? page : 1;
-  const data = await fetchJson<SwapiListResponse<SwapiPerson>>(`${SWAPI_BASE}/people/?page=${safePage}`);
-
-  const persons = await Promise.all(data.results.map((person) => mapPerson(person)));
+async function buildPersonsResponse(data: SwapiListResponse<SwapiPerson>): Promise<PersonsApiResponse> {
+  const persons = await Promise.all(data.results.map((person) => mapSwapiPerson(person)));
 
   return {
     persons,
-    pagination: {
-      previous: data.previous ? true : undefined,
-      next: data.next ? true : undefined,
-    },
+    pagination: mapPagination(data),
   };
 }
 
+function sanitizePage(page: number): number {
+  return Number.isFinite(page) && page > 0 ? page : 1;
+}
+
+export async function listPersons(page: number): Promise<PersonsApiResponse> {
+  const safePage = sanitizePage(page);
+  const data = await fetchJson<SwapiListResponse<SwapiPerson>>(`${SWAPI_BASE_URL}/people/?page=${safePage}`);
+
+  return buildPersonsResponse(data);
+}
+
 export async function searchPersonsByName(term: string, page: number): Promise<PersonsApiResponse> {
-  const safePage = Number.isFinite(page) && page > 0 ? page : 1;
   const query = term.trim();
+  const safePage = sanitizePage(page);
 
   if (!query) {
     return listPersons(safePage);
   }
 
   const data = await fetchJson<SwapiListResponse<SwapiPerson>>(
-    `${SWAPI_BASE}/people/?search=${encodeURIComponent(query)}&page=${safePage}`
+    `${SWAPI_BASE_URL}/people/?search=${encodeURIComponent(query)}&page=${safePage}`
   );
 
-  const persons = await Promise.all(data.results.map((person) => mapPerson(person)));
-
-  return {
-    persons,
-    pagination: {
-      previous: data.previous ? true : undefined,
-      next: data.next ? true : undefined,
-    },
-  };
+  return buildPersonsResponse(data);
 }
 
 export async function listMoviesByUrls(urls: string[]): Promise<Movie[]> {
   const uniqueUrls = Array.from(new Set(urls)).filter(Boolean).map((url) => toHttps(url));
 
-  const movies = await Promise.all(
+  return Promise.all(
     uniqueUrls.map(async (url) => {
       const film = await fetchJson<SwapiFilm>(url);
 
@@ -134,6 +129,4 @@ export async function listMoviesByUrls(urls: string[]): Promise<Movie[]> {
       };
     })
   );
-
-  return movies;
 }

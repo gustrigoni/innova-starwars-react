@@ -1,24 +1,24 @@
-﻿import { Fragment } from "react";
-import type { Movie } from "../../lib/contracts";
+﻿import type { Movie } from "../../lib/contracts";
+import { formatReleaseDate } from "../../lib/formatters";
 import { Container, Title, Description } from "./styles";
 
-interface Props {
+interface MoviesProps {
   data: Movie[];
 }
 
-export function Movies(props: Props) {
+export function Movies({ data }: MoviesProps) {
   return (
     <Container>
-      {props.data.map((movie, index) => {
-        const dateUserLocal = new Date(movie.releaseDate.replace(/-/g, "/")).toLocaleDateString();
+      {data.map((movie) => {
+        const movieKey = `${movie.name}-${movie.releaseDate}`;
 
         return (
-          <Fragment key={index}>
+          <article key={movieKey}>
             <Title>
-              {movie.name} ({dateUserLocal})
+              {movie.name} ({formatReleaseDate(movie.releaseDate)})
             </Title>
             <Description>{movie.description}</Description>
-          </Fragment>
+          </article>
         );
       })}
     </Container>

@@ -3,42 +3,31 @@
 import { Container, Name, Button } from "./styles";
 
 import { useSearch } from "../../SearchContext";
-import type { PersonInterface } from "../../lib/contracts";
+import { APP_ROUTES } from "../../lib/constants";
+import type { Person as PersonModel } from "../../lib/contracts";
+import { getGenderEmoji } from "../../lib/formatters";
 
-interface Props {
+interface PersonProps {
   name: string;
   gender: string;
-  data: PersonInterface;
+  data: PersonModel;
 }
 
-export function Person(props: Props) {
+export function Person({ name, gender, data }: PersonProps) {
   const { setPersonData } = useSearch();
   const router = useRouter();
 
-  function emojiByGender() {
-    switch (props.gender.toLowerCase()) {
-      case "male":
-        return "👦";
-      case "female":
-        return "👧";
-      case "hermaphrodite":
-        return "🦄";
-      default:
-        return "🤖";
-    }
-  }
-
-  function handleClick() {
-    setPersonData(props.data);
-    router.push("/profile");
+  function handleOpenCharacter() {
+    setPersonData(data);
+    router.push(`${APP_ROUTES.character}?name=${encodeURIComponent(data.name)}`);
   }
 
   return (
     <Container>
       <Name>
-        {emojiByGender()} {props.name}
+        {getGenderEmoji(gender)} {name}
       </Name>
-      <Button onClick={handleClick}>Visualizar</Button>
+      <Button onClick={handleOpenCharacter}>Visualizar</Button>
     </Container>
   );
 }
