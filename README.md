@@ -1,29 +1,34 @@
 ﻿# innova-starwars-next
 
-Migracao do projeto para Next.js mantendo o layout original.
+Migration of the project to Next.js while maintaining the original layout.
 
 ## Stack
+
 - Node.js LTS (22+)
-- Next.js 15 (LTS/estavel)
+- Next.js 15 (LTS/stable)
 - React 18
 - styled-components
 
-## APIs publicas
-- SWAPI: `https://swapi.dev/`
-- Imagens dos personagens: `https://akabab.github.io/starwars-api/api/all.json`
+## Public APIs
 
-A interface consome apenas rotas internas do Next:
+- SWAPI: `https://swapi.dev/`
+- Character images: `https://akabab.github.io/starwars-api/api/all.json`
+
+The interface only consumes internal Next.js routes:
+
 - `GET /api/persons?page=1`
 - `GET /api/persons/{name}?page=1`
-- `GET /api/movies?url=<film_url>&url=<film_url>`
+- `GET /api/movies?url=<film_url>`
 
-## Como rodar
+## How to run
+
 ```bash
 npm install
 npm run dev
 ```
 
-## Build de producao
+## Production build
+
 ```bash
 npm run build
 npm run start
