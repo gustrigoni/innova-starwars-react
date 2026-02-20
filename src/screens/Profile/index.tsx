@@ -44,6 +44,20 @@ import {
   SkeletonCard,
 } from "./styles";
 
+interface CharacterDetails {
+  movies: Movie[];
+  planets: Planet[];
+  species: Species[];
+  starships: Starship[];
+}
+
+const EMPTY_DETAILS: CharacterDetails = {
+  movies: [],
+  planets: [],
+  species: [],
+  starships: [],
+};
+
 function normalizeValue(value: string): string {
   if (!value || value === "unknown" || value === "n/a") {
     return "Unknown";
@@ -70,12 +84,7 @@ function SectionSkeleton({ cards = 2 }: { cards?: number }) {
 export function Profile() {
   const { personData, setPersonData } = useSearch();
   const [character, setCharacter] = useState<PersonModel | null>(null);
-
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [planets, setPlanets] = useState<Planet[]>([]);
-  const [species, setSpecies] = useState<Species[]>([]);
-  const [starships, setStarships] = useState<Starship[]>([]);
-
+  const [details, setDetails] = useState<CharacterDetails>(EMPTY_DETAILS);
   const [isLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
@@ -110,25 +119,27 @@ export function Profile() {
           setPersonData(targetCharacter);
         }
 
-        const details = await Promise.allSettled([
+        const resources = await Promise.allSettled([
           fetchMovies(targetCharacter.films),
           fetchPlanets(targetCharacter.homeworld ? [targetCharacter.homeworld] : []),
           fetchSpecies(targetCharacter.species),
           fetchStarships(targetCharacter.starships),
         ]);
 
-        const [moviesResult, planetsResult, speciesResult, starshipsResult] = details;
+        const [moviesResult, planetsResult, speciesResult, starshipsResult] = resources;
 
-        setMovies(moviesResult.status === "fulfilled" ? moviesResult.value : []);
-        setPlanets(planetsResult.status === "fulfilled" ? planetsResult.value : []);
-        setSpecies(speciesResult.status === "fulfilled" ? speciesResult.value : []);
-        setStarships(starshipsResult.status === "fulfilled" ? starshipsResult.value : []);
+        setDetails({
+          movies: moviesResult.status === "fulfilled" ? moviesResult.value : [],
+          planets: planetsResult.status === "fulfilled" ? planetsResult.value : [],
+          species: speciesResult.status === "fulfilled" ? speciesResult.value : [],
+          starships: starshipsResult.status === "fulfilled" ? starshipsResult.value : [],
+        });
 
-        const hasAnyFailure = details.some((result) => result.status === "rejected");
+        const hasAnyFailure = resources.some((result) => result.status === "rejected");
         if (hasAnyFailure) {
           toast.warning("Some details are currently unavailable.");
         }
-      } catch (error) {
+      } catch (_error) {
         toast.error("Could not load the character.");
         router.replace(APP_ROUTES.search);
       } finally {
@@ -183,7 +194,9 @@ export function Profile() {
             {isLoading ? (
               <SectionSkeleton />
             ) : (
-              <SectionBody>{movies.length > 0 ? <Movies data={movies} /> : <EmptyState>No movies available.</EmptyState>}</SectionBody>
+              <SectionBody>
+                {details.movies.length > 0 ? <Movies data={details.movies} /> : <EmptyState>No movies available.</EmptyState>}
+              </SectionBody>
             )}
           </Section>
 
@@ -193,10 +206,10 @@ export function Profile() {
               <SectionSkeleton cards={1} />
             ) : (
               <SectionBody>
-                {planets.length === 0 ? (
+                {details.planets.length === 0 ? (
                   <EmptyState>No known planet data.</EmptyState>
                 ) : (
-                  planets.map((planet) => (
+                  details.planets.map((planet) => (
                     <ResourceCard key={planet.name}>
                       <ResourceName>{planet.name}</ResourceName>
                       <ResourceMeta>Climate: {normalizeValue(planet.climate)}</ResourceMeta>
@@ -215,10 +228,10 @@ export function Profile() {
               <SectionSkeleton cards={1} />
             ) : (
               <SectionBody>
-                {species.length === 0 ? (
+                {details.species.length === 0 ? (
                   <EmptyState>No species data available.</EmptyState>
                 ) : (
-                  species.map((item) => (
+                  details.species.map((item) => (
                     <ResourceCard key={item.name}>
                       <ResourceName>{item.name}</ResourceName>
                       <ResourceMeta>Classification: {normalizeValue(item.classification)}</ResourceMeta>
@@ -237,10 +250,10 @@ export function Profile() {
               <SectionSkeleton cards={1} />
             ) : (
               <SectionBody>
-                {starships.length === 0 ? (
+                {details.starships.length === 0 ? (
                   <EmptyState>No starships linked to this character.</EmptyState>
                 ) : (
-                  starships.map((starship) => (
+                  details.starships.map((starship) => (
                     <ResourceCard key={starship.name}>
                       <ResourceName>{starship.name}</ResourceName>
                       <ResourceMeta>Model: {normalizeValue(starship.model)}</ResourceMeta>

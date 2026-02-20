@@ -1,4 +1,12 @@
-﻿import { useEffect, useMemo, useState, type FormEvent } from "react";
+﻿import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useOptimistic,
+  useState,
+  useTransition,
+  type FormEvent,
+} from "react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 
@@ -30,12 +38,20 @@ const EMPTY_PAGINATION: Pagination = {
 export function Search() {
   const router = useRouter();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [persons, setPersons] = useState<PersonModel[]>([]);
   const [pagination, setPagination] = useState<Pagination>(EMPTY_PAGINATION);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchInput, setSearchInput] = useState("");
+
+  const [isRouting, startRouteTransition] = useTransition();
+  const [optimisticSearchTerm, setOptimisticSearchTerm] = useOptimistic(
+    searchTerm,
+    (_currentValue, nextValue: string) => nextValue,
+  );
+
+  const isBusy = isFetching || isRouting;
 
   useEffect(() => {
     if (!router.isReady) {
@@ -56,45 +72,56 @@ export function Search() {
 
     async function loadPersons() {
       try {
-        setIsLoading(true);
+        setIsFetching(true);
         const response = await fetchPersons({ page, name: searchTerm || undefined });
 
         setPersons(response.persons);
         setPagination(response.pagination);
-      } catch (error) {
+      } catch (_error) {
         setPersons([]);
         setPagination(EMPTY_PAGINATION);
         toast.error("Could not load characters.");
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
       }
     }
 
     loadPersons();
   }, [page, searchTerm, router.isReady]);
 
-  function updateSearchRoute(term: string) {
-    if (term) {
-      router.replace(`${APP_ROUTES.search}?name=${encodeURIComponent(term)}`, undefined, { shallow: true });
-      return;
-    }
+  const updateSearchRoute = useCallback(
+    (term: string) => {
+      startRouteTransition(() => {
+        if (term) {
+          router.replace(`${APP_ROUTES.search}?name=${encodeURIComponent(term)}`, undefined, { shallow: true });
+          return;
+        }
 
-    router.replace(APP_ROUTES.search, undefined, { shallow: true });
-  }
+        router.replace(APP_ROUTES.search, undefined, { shallow: true });
+      });
+    },
+    [router],
+  );
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const normalizedTerm = searchInput.trim();
+
+    setOptimisticSearchTerm(normalizedTerm);
     setSearchTerm(normalizedTerm);
-    setPage(1);
+    startRouteTransition(() => {
+      setPage(1);
+    });
     updateSearchRoute(normalizedTerm);
   }
 
   const resultDescription = useMemo(() => {
     const suffix = persons.length > 1 ? "characters found" : "character found";
-    return `${persons.length} ${suffix}.`;
-  }, [persons.length]);
+    const scopedSearch = optimisticSearchTerm ? ` for \"${optimisticSearchTerm}\"` : "";
+
+    return `${persons.length} ${suffix}${scopedSearch}.`;
+  }, [optimisticSearchTerm, persons.length]);
 
   return (
     <Container>
@@ -104,7 +131,7 @@ export function Search() {
           <Input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} />
         </Form>
         <Col>
-          {!isLoading ? (
+          {!isBusy ? (
             <>
               <Title>Result</Title>
               <Description>{resultDescription}</Description>
@@ -115,7 +142,7 @@ export function Search() {
         </Col>
         <List>
           <Col>
-            {!isLoading &&
+            {!isBusy &&
               persons.map((person) => (
                 <Person key={person.name} name={person.name} gender={person.gender} data={person} />
               ))}
@@ -124,10 +151,28 @@ export function Search() {
         <Footer>
           <Button onClick={() => router.push(APP_ROUTES.home)}>Home</Button>
           <ButtonContainer>
-            {!isLoading && pagination.previous && (
-              <Button onClick={() => setPage((oldPage) => Math.max(oldPage - 1, 1))}>Back</Button>
+            {!isBusy && pagination.previous && (
+              <Button
+                onClick={() =>
+                  startRouteTransition(() => {
+                    setPage((oldPage) => Math.max(oldPage - 1, 1));
+                  })
+                }
+              >
+                Back
+              </Button>
             )}
-            {!isLoading && pagination.next && <Button onClick={() => setPage((oldPage) => oldPage + 1)}>Next</Button>}
+            {!isBusy && pagination.next && (
+              <Button
+                onClick={() =>
+                  startRouteTransition(() => {
+                    setPage((oldPage) => oldPage + 1);
+                  })
+                }
+              >
+                Next
+              </Button>
+            )}
           </ButtonContainer>
         </Footer>
       </Row>
