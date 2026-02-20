@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Movies, Movie } from '../../components/Movies';
-import { useSearch } from '../../SearchContext';
-import axios from 'axios';
+﻿import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+
+import { Movies } from "../../components/Movies";
+import { useSearch } from "../../SearchContext";
+import type { Movie } from "../../lib/contracts";
 
 import {
   Container,
@@ -14,93 +16,89 @@ import {
   Row,
   Info,
   Title,
-} from './styles';
-import { useNavigate } from 'react-router-dom';
+} from "./styles";
 
 export function Profile() {
-
   const { personData } = useSearch();
-
   const [movies, setMovies] = useState<Movie[]>([]);
 
-  const navigate = useNavigate();
+  const router = useRouter();
 
-  /**
-   * Handle button 'voltar'
-   */
   function handleBack() {
-    navigate(-1);  // back to previous page
+    router.back();
   }
 
-  /**
-   * Get gender with emoji in portuguese
-   */
   function translateGender() {
-    switch (personData.gender.toLocaleLowerCase()) {
+    switch ((personData.gender || "").toLowerCase()) {
       case "male":
-        return '👦 masculino';
+        return "👦 masculino";
       case "female":
-        return '👧 feminino';
+        return "👧 feminino";
       case "hermaphrodite":
-        return '🦄 hermafrodita';
+        return "🦄 hermafrodita";
       default:
-        return '🤖 não definido';
+        return "🤖 nao definido";
     }
   }
 
-  /**
-   * Get movies data by person
-   */
-  async function getMovies() {
-
-    // search movies by person
-    const { data } = await axios.get('/movies', {
-      params: {
-        url: personData.films
-      }
-    });
-
-    // define the movies data
-    setMovies(data);
-
-  }
-
   useEffect(() => {
-    getMovies();
-    // eslint-disable-next-line
-  }, [personData])
+    if (!personData?.name) {
+      router.replace("/");
+      return;
+    }
 
-  return <Container>
-    <Person>
-      <Picture src={personData.image || 'https://bestprofilepictures.com/wp-content/uploads/2020/06/Mandalorian-Tik-Tok-Profile-Picture.jpg'} />
-      <Row>
-        <Name>{personData.name}</Name>
-        <Button
-          onClick={handleBack}
-        >
-          Voltar
-        </Button>
-      </Row>
-    </Person>
-    <About>
-      <Col>
+    const loadMovies = async () => {
+      const urls = personData.films ?? [];
+      if (urls.length === 0) {
+        setMovies([]);
+        return;
+      }
+
+      const params = new URLSearchParams();
+      urls.forEach((url) => params.append("url", url));
+
+      const response = await fetch(`/api/movies?${params.toString()}`);
+      const data = (await response.json()) as Movie[];
+      setMovies(data);
+    };
+
+    loadMovies();
+  }, [personData, router]);
+
+  return (
+    <Container>
+      <Person>
+        <Picture
+          src={
+            personData.image ||
+            "https://akabab.github.io/starwars-api/api/id/1.jpg"
+          }
+        />
         <Row>
-          <Info label={true}>Ano de nascimento:</Info>
-          <Info>🎂 {personData.birth}</Info>
+          <Name>{personData.name}</Name>
+          <Button onClick={handleBack}>Voltar</Button>
         </Row>
-        <Row >
-          <Info label={true}>Cor dos olhos:</Info>
-          <Info>👀 {personData.eyeColor}</Info>
-        </Row>
-        <Row>
-          <Info label={true}>Gênero:</Info>
-          <Info>{translateGender()}</Info>
-        </Row>
-      </Col>
-      <Col>
-        <Title>📺 Filmes:</Title>
-        {movies.length === 0 ? <Info>Carregando...</Info> : <Movies data={movies} />}
-      </Col>
-    </About>
-  </Container>
+      </Person>
+      <About>
+        <Col>
+          <Row>
+            <Info label>Ano de nascimento:</Info>
+            <Info>🎂 {personData.birth}</Info>
+          </Row>
+          <Row>
+            <Info label>Cor dos olhos:</Info>
+            <Info>👀 {personData.eyeColor}</Info>
+          </Row>
+          <Row>
+            <Info label>Genero:</Info>
+            <Info>{translateGender()}</Info>
+          </Row>
+        </Col>
+        <Col>
+          <Title>📺 Filmes:</Title>
+          {movies.length === 0 ? <Info>Carregando...</Info> : <Movies data={movies} />}
+        </Col>
+      </About>
+    </Container>
+  );
 }

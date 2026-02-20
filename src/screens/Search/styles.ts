@@ -1,5 +1,4 @@
-import styled from "styled-components";
-import logo from "./../../assets/images/logo.png"
+﻿import styled from "styled-components";
 
 export const Container = styled.div`
   width: 100vw;
@@ -16,11 +15,11 @@ export const Row = styled.div`
   max-height: 85%;
   border-style: solid;
   border-image-width: 1px;
-  border-image-source: linear-gradient(to bottom, #FFC107, rgb(0,0,0));
+  border-image-source: linear-gradient(to bottom, #ffc107, rgb(0, 0, 0));
   border-image-slice: 1;
-  background-color: #0A0A0A; 
+  background-color: #0a0a0a;
   background-origin: border-box;
-  position: relative;  
+  position: relative;
   overflow: auto;
 `;
 
@@ -28,7 +27,7 @@ export const Form = styled.form`
   width: 100%;
   margin-top: 5%;
   margin-bottom: 5%;
-  padding: 0px 5%;
+  padding: 0 5%;
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
@@ -37,7 +36,7 @@ export const Form = styled.form`
 `;
 
 export const Logo = styled.img.attrs({
-  src: logo
+  src: "/logo.png",
 })`
   width: 20%;
   max-width: 300px;
@@ -46,27 +45,27 @@ export const Logo = styled.img.attrs({
 `;
 
 export const Input = styled.input.attrs({
-  placeholder: 'Qual personagem você deseja procurar?'
+  placeholder: "Qual personagem voce deseja procurar?",
 })`
   width: 555px;
   max-width: 70%;
   height: 1px;
   padding: 4% 3%;
   border-radius: 5px;
-  background-color: #FFC107;
+  background-color: #ffc107;
   outline: 0;
   border: none;
   font-size: 0.9rem;
+
   ::placeholder {
     color: #555555;
   }
-  :focus { }
 `;
 
 export const Col = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0px 5%;
+  padding: 0 5%;
 `;
 
 export const Title = styled.p`
@@ -94,9 +93,9 @@ export const List = styled.div`
 `;
 
 export const Footer = styled.div`
-  background-color: #0E0E0E;
+  background-color: #0e0e0e;
   display: flex;
-  padding: 3% 3% 3% 3%;
+  padding: 3%;
   justify-content: space-between;
   bottom: 0;
   width: 100%;
@@ -109,11 +108,12 @@ export const Button = styled.button`
   padding: 1% calc(0.4rem + 0.2vw);
   font-weight: bold;
   border-radius: 0.3rem;
-  background-color: #FFC107;
+  background-color: #ffc107;
   font-size: 0.7rem;
   word-wrap: break-word;
   cursor: pointer;
-  &:last-child{
+
+  &:last-child {
     margin-left: 10px;
   }
 `;

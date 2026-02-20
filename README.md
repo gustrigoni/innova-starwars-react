@@ -1,6 +1,30 @@
-# innova-starwars-react
-Projeto desenvolvimento para o teste técnico da Innova Connect.
+﻿# innova-starwars-next
 
-Para ver o website rodando acesse: https://innova-starwars-react.herokuapp.com/
+Migracao do projeto para Next.js mantendo o layout original.
 
-Se quiseres ter mais detalhes sobre o sketch do design, pode ver pelo Figma: https://www.figma.com/file/olradlRJPh0ZRAiMOj1mII/Innova-Connect---Star-Wars?node-id=2%3A13
+## Stack
+- Node.js LTS (22+)
+- Next.js 15 (LTS/estavel)
+- React 18
+- styled-components
+
+## APIs publicas
+- SWAPI: `https://swapi.dev/`
+- Imagens dos personagens: `https://akabab.github.io/starwars-api/api/all.json`
+
+A interface consome apenas rotas internas do Next:
+- `GET /api/persons?page=1`
+- `GET /api/persons/{name}?page=1`
+- `GET /api/movies?url=<film_url>&url=<film_url>`
+
+## Como rodar
+```bash
+npm install
+npm run dev
+```
+
+## Build de producao
+```bash
+npm run build
+npm run start
+```

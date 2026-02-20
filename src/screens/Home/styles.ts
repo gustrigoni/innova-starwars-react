@@ -1,5 +1,4 @@
-import styled from "styled-components";
-import logo from "./../../assets/images/logo.png"
+﻿import styled from "styled-components";
 
 export const Container = styled.div`
   width: 100vw;
@@ -20,7 +19,7 @@ export const Row = styled.div`
 `;
 
 export const Logo = styled.img.attrs({
-  src: logo
+  src: "/logo.png",
 })`
   width: 90%;
   max-width: 300px;
@@ -35,22 +34,22 @@ export const InputContainer = styled.form`
 `;
 
 export const Input = styled.input.attrs({
-  placeholder: 'Qual personagem você deseja procurar?'
+  placeholder: "Qual personagem voce deseja procurar?",
 })`
   width: 100%;
   height: 90%;
   padding: 4% 3%;
   box-sizing: border-box;
   border-radius: 5px;
-  background-color: #FFC107;
+  background-color: #ffc107;
   outline: 0;
   border: none;
   font-size: calc(1em - 17%);
   line-height: 1.5;
+
   ::placeholder {
     color: #555555;
   }
-  :focus { }
 `;
 
 export const Button = styled.button`

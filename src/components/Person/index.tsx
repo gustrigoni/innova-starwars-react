@@ -1,12 +1,9 @@
-import { useNavigate } from 'react-router-dom';
+﻿import { useRouter } from "next/router";
 
-import {
-  Container,
-  Name,
-  Button,
-} from './styles';
+import { Container, Name, Button } from "./styles";
 
-import { useSearch } from '../../SearchContext';
+import { useSearch } from "../../SearchContext";
+import type { PersonInterface } from "../../lib/contracts";
 
 interface Props {
   name: string;
@@ -14,49 +11,34 @@ interface Props {
   data: PersonInterface;
 }
 
-export interface PersonInterface {
-  name: string;
-  birth: string;
-  gender: string;
-  eyeColor: string;
-  image: string;
-  films?: string[];
-}
-
-
 export function Person(props: Props) {
-
   const { setPersonData } = useSearch();
-  const navigate = useNavigate();
+  const router = useRouter();
 
-  /**
-   * Returns emojis by gender
-   */
   function emojiByGender() {
-    switch (props.gender.toLocaleLowerCase()) {
+    switch (props.gender.toLowerCase()) {
       case "male":
-        return '👦';
+        return "👦";
       case "female":
-        return '👧';
+        return "👧";
       case "hermaphrodite":
-        return '🦄';
+        return "🦄";
       default:
-        return '🤖';
+        return "🤖";
     }
   }
 
-  /**
-   * When users click in the button 'visualizar'.
-   */
   function handleClick() {
     setPersonData(props.data);
-    navigate('/profile');
+    router.push("/profile");
   }
 
-  return <Container>
-    <Name>{emojiByGender()} {props.name}</Name>
-    <Button onClick={handleClick}>
-      Visualizar
-    </Button>
-  </Container>
+  return (
+    <Container>
+      <Name>
+        {emojiByGender()} {props.name}
+      </Name>
+      <Button onClick={handleClick}>Visualizar</Button>
+    </Container>
+  );
 }
