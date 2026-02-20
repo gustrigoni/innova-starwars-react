@@ -1,5 +1,13 @@
 ﻿import { API_ROUTES } from "./constants";
-import type { ApiErrorResponse, Movie, Person, PersonsApiResponse } from "./contracts";
+import type {
+  ApiErrorResponse,
+  Movie,
+  Person,
+  PersonsApiResponse,
+  Planet,
+  Species,
+  Starship,
+} from "./contracts";
 import { normalizeName } from "./formatters";
 
 async function parseResponse<T>(response: Response): Promise<T> {
@@ -11,6 +19,21 @@ async function parseResponse<T>(response: Response): Promise<T> {
   }
 
   return payload as T;
+}
+
+function createUrlQuery(urls: string[]): string {
+  const query = new URLSearchParams();
+  urls.forEach((url) => query.append("url", url));
+  return query.toString();
+}
+
+async function fetchResourcesByUrls<T>(route: string, urls: string[]): Promise<T[]> {
+  if (urls.length === 0) {
+    return [];
+  }
+
+  const response = await fetch(`${route}?${createUrlQuery(urls)}`);
+  return parseResponse<T[]>(response);
 }
 
 export async function fetchPersons(params: { page: number; name?: string }): Promise<PersonsApiResponse> {
@@ -34,13 +57,17 @@ export async function fetchPersonByName(name: string): Promise<Person | null> {
 }
 
 export async function fetchMovies(urls: string[]): Promise<Movie[]> {
-  if (urls.length === 0) {
-    return [];
-  }
+  return fetchResourcesByUrls<Movie>(API_ROUTES.movies, urls);
+}
 
-  const query = new URLSearchParams();
-  urls.forEach((url) => query.append("url", url));
+export async function fetchPlanets(urls: string[]): Promise<Planet[]> {
+  return fetchResourcesByUrls<Planet>(API_ROUTES.planets, urls);
+}
 
-  const response = await fetch(`${API_ROUTES.movies}?${query.toString()}`);
-  return parseResponse<Movie[]>(response);
+export async function fetchSpecies(urls: string[]): Promise<Species[]> {
+  return fetchResourcesByUrls<Species>(API_ROUTES.species, urls);
+}
+
+export async function fetchStarships(urls: string[]): Promise<Starship[]> {
+  return fetchResourcesByUrls<Starship>(API_ROUTES.starships, urls);
 }

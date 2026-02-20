@@ -1,9 +1,9 @@
 ﻿import type { Gender } from "./contracts";
 
 const GENDER_LABELS: Record<string, string> = {
-  male: "masculino",
-  female: "feminino",
-  hermaphrodite: "hermafrodita",
+  male: "male",
+  female: "female",
+  hermaphrodite: "hermaphrodite",
 };
 
 const GENDER_EMOJIS: Record<string, string> = {

@@ -7,6 +7,9 @@ export interface Person {
   eyeColor: string;
   image: string;
   films: string[];
+  homeworld: string;
+  species: string[];
+  starships: string[];
 }
 
 export interface Pagination {
@@ -23,6 +26,27 @@ export interface Movie {
   name: string;
   description: string;
   releaseDate: string;
+}
+
+export interface Planet {
+  name: string;
+  climate: string;
+  terrain: string;
+  population: string;
+}
+
+export interface Species {
+  name: string;
+  classification: string;
+  language: string;
+  averageLifespan: string;
+}
+
+export interface Starship {
+  name: string;
+  model: string;
+  manufacturer: string;
+  starshipClass: string;
 }
 
 export interface ApiErrorResponse {

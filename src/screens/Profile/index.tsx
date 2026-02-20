@@ -4,9 +4,21 @@ import { toast } from "react-toastify";
 
 import { Movies } from "../../components/Movies";
 import { useSearch } from "../../SearchContext";
-import { fetchMovies, fetchPersonByName } from "../../lib/api";
+import {
+  fetchMovies,
+  fetchPersonByName,
+  fetchPlanets,
+  fetchSpecies,
+  fetchStarships,
+} from "../../lib/api";
 import { APP_ROUTES, FALLBACK_PERSON_IMAGE } from "../../lib/constants";
-import type { Movie, Person as PersonModel } from "../../lib/contracts";
+import type {
+  Movie,
+  Person as PersonModel,
+  Planet,
+  Species,
+  Starship,
+} from "../../lib/contracts";
 import { getGenderLabel } from "../../lib/formatters";
 
 import {
@@ -20,12 +32,33 @@ import {
   Row,
   Info,
   Title,
+  Grid,
+  Section,
+  SectionTitle,
+  SectionBody,
+  ResourceCard,
+  ResourceName,
+  ResourceMeta,
+  EmptyState,
 } from "./styles";
+
+function normalizeValue(value: string): string {
+  if (!value || value === "unknown" || value === "n/a") {
+    return "Unknown";
+  }
+
+  return value;
+}
 
 export function Profile() {
   const { personData, setPersonData } = useSearch();
   const [character, setCharacter] = useState<PersonModel | null>(null);
+
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [planets, setPlanets] = useState<Planet[]>([]);
+  const [species, setSpecies] = useState<Species[]>([]);
+  const [starships, setStarships] = useState<Starship[]>([]);
+
   const [isLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
@@ -60,8 +93,24 @@ export function Profile() {
           setPersonData(targetCharacter);
         }
 
-        const filmsData = await fetchMovies(targetCharacter.films);
-        setMovies(filmsData);
+        const details = await Promise.allSettled([
+          fetchMovies(targetCharacter.films),
+          fetchPlanets(targetCharacter.homeworld ? [targetCharacter.homeworld] : []),
+          fetchSpecies(targetCharacter.species),
+          fetchStarships(targetCharacter.starships),
+        ]);
+
+        const [moviesResult, planetsResult, speciesResult, starshipsResult] = details;
+
+        setMovies(moviesResult.status === "fulfilled" ? moviesResult.value : []);
+        setPlanets(planetsResult.status === "fulfilled" ? planetsResult.value : []);
+        setSpecies(speciesResult.status === "fulfilled" ? speciesResult.value : []);
+        setStarships(starshipsResult.status === "fulfilled" ? starshipsResult.value : []);
+
+        const hasAnyFailure = details.some((result) => result.status === "rejected");
+        if (hasAnyFailure) {
+          toast.warning("Some details are currently unavailable.");
+        }
       } catch (error) {
         toast.error("Could not load the character.");
         router.replace(APP_ROUTES.search);
@@ -87,24 +136,88 @@ export function Profile() {
         </Row>
       </Person>
       <About>
-        <Col>
-          <Row>
-            <Info label>Birth year:</Info>
-            <Info>🎂 {character.birth}</Info>
-          </Row>
-          <Row>
-            <Info label>Eye color:</Info>
-            <Info>👀 {character.eyeColor}</Info>
-          </Row>
-          <Row>
-            <Info label>Gender:</Info>
-            <Info>{getGenderLabel(character.gender)}</Info>
-          </Row>
-        </Col>
-        <Col>
-          <Title>📺 Movies:</Title>
-          {isLoading ? <Info>Loading...</Info> : <Movies data={movies} />}
-        </Col>
+        <Grid>
+          <Section>
+            <SectionTitle>Overview</SectionTitle>
+            <SectionBody>
+              <Col>
+                <Row>
+                  <Info label>Birth year:</Info>
+                  <Info>🎂 {normalizeValue(character.birth)}</Info>
+                </Row>
+                <Row>
+                  <Info label>Eye color:</Info>
+                  <Info>👀 {normalizeValue(character.eyeColor)}</Info>
+                </Row>
+                <Row>
+                  <Info label>Gender:</Info>
+                  <Info>{getGenderLabel(character.gender)}</Info>
+                </Row>
+              </Col>
+            </SectionBody>
+          </Section>
+
+          <Section>
+            <SectionTitle>Movies</SectionTitle>
+            <SectionBody>
+              {isLoading ? <EmptyState>Loading...</EmptyState> : <Movies data={movies} />}
+            </SectionBody>
+          </Section>
+
+          <Section>
+            <SectionTitle>Planet</SectionTitle>
+            <SectionBody>
+              {planets.length === 0 ? (
+                <EmptyState>No known planet data.</EmptyState>
+              ) : (
+                planets.map((planet) => (
+                  <ResourceCard key={planet.name}>
+                    <ResourceName>{planet.name}</ResourceName>
+                    <ResourceMeta>Climate: {normalizeValue(planet.climate)}</ResourceMeta>
+                    <ResourceMeta>Terrain: {normalizeValue(planet.terrain)}</ResourceMeta>
+                    <ResourceMeta>Population: {normalizeValue(planet.population)}</ResourceMeta>
+                  </ResourceCard>
+                ))
+              )}
+            </SectionBody>
+          </Section>
+
+          <Section>
+            <SectionTitle>Species</SectionTitle>
+            <SectionBody>
+              {species.length === 0 ? (
+                <EmptyState>No species data available.</EmptyState>
+              ) : (
+                species.map((item) => (
+                  <ResourceCard key={item.name}>
+                    <ResourceName>{item.name}</ResourceName>
+                    <ResourceMeta>Classification: {normalizeValue(item.classification)}</ResourceMeta>
+                    <ResourceMeta>Language: {normalizeValue(item.language)}</ResourceMeta>
+                    <ResourceMeta>Lifespan: {normalizeValue(item.averageLifespan)}</ResourceMeta>
+                  </ResourceCard>
+                ))
+              )}
+            </SectionBody>
+          </Section>
+
+          <Section>
+            <SectionTitle>Starships</SectionTitle>
+            <SectionBody>
+              {starships.length === 0 ? (
+                <EmptyState>No starships linked to this character.</EmptyState>
+              ) : (
+                starships.map((starship) => (
+                  <ResourceCard key={starship.name}>
+                    <ResourceName>{starship.name}</ResourceName>
+                    <ResourceMeta>Model: {normalizeValue(starship.model)}</ResourceMeta>
+                    <ResourceMeta>Class: {normalizeValue(starship.starshipClass)}</ResourceMeta>
+                    <ResourceMeta>Manufacturer: {normalizeValue(starship.manufacturer)}</ResourceMeta>
+                  </ResourceCard>
+                ))
+              )}
+            </SectionBody>
+          </Section>
+        </Grid>
       </About>
     </Container>
   );

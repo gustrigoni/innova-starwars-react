@@ -1,4 +1,4 @@
-﻿import type { Movie, Person, PersonsApiResponse } from "./contracts";
+﻿import type { Movie, Person, PersonsApiResponse, Planet, Species, Starship } from "./contracts";
 import { normalizeName, toHttps } from "./formatters";
 
 const SWAPI_BASE_URL = "https://swapi.dev/api";
@@ -16,12 +16,36 @@ interface SwapiPerson {
   gender: string;
   eye_color: string;
   films: string[];
+  homeworld: string;
+  species: string[];
+  starships: string[];
 }
 
 interface SwapiFilm {
   title: string;
   opening_crawl: string;
   release_date: string;
+}
+
+interface SwapiPlanet {
+  name: string;
+  climate: string;
+  terrain: string;
+  population: string;
+}
+
+interface SwapiSpecies {
+  name: string;
+  classification: string;
+  language: string;
+  average_lifespan: string;
+}
+
+interface SwapiStarship {
+  name: string;
+  model: string;
+  manufacturer: string;
+  starship_class: string;
 }
 
 interface AkababPerson {
@@ -77,6 +101,9 @@ async function mapSwapiPerson(person: SwapiPerson): Promise<Person> {
     eyeColor: person.eye_color,
     image: imageByName.get(normalizeName(person.name)) ?? "",
     films: (person.films ?? []).map((filmUrl) => toHttps(filmUrl)),
+    homeworld: person.homeworld ? toHttps(person.homeworld) : "",
+    species: (person.species ?? []).map((speciesUrl) => toHttps(speciesUrl)),
+    starships: (person.starships ?? []).map((starshipUrl) => toHttps(starshipUrl)),
   };
 }
 
@@ -91,6 +118,10 @@ async function buildPersonsResponse(data: SwapiListResponse<SwapiPerson>): Promi
 
 function sanitizePage(page: number): number {
   return Number.isFinite(page) && page > 0 ? page : 1;
+}
+
+function normalizeUrls(urls: string[]): string[] {
+  return Array.from(new Set(urls)).filter(Boolean).map((url) => toHttps(url));
 }
 
 export async function listPersons(page: number): Promise<PersonsApiResponse> {
@@ -116,7 +147,7 @@ export async function searchPersonsByName(term: string, page: number): Promise<P
 }
 
 export async function listMoviesByUrls(urls: string[]): Promise<Movie[]> {
-  const uniqueUrls = Array.from(new Set(urls)).filter(Boolean).map((url) => toHttps(url));
+  const uniqueUrls = normalizeUrls(urls);
 
   return Promise.all(
     uniqueUrls.map(async (url) => {
@@ -126,6 +157,57 @@ export async function listMoviesByUrls(urls: string[]): Promise<Movie[]> {
         name: film.title,
         description: film.opening_crawl,
         releaseDate: film.release_date,
+      };
+    })
+  );
+}
+
+export async function listPlanetsByUrls(urls: string[]): Promise<Planet[]> {
+  const uniqueUrls = normalizeUrls(urls);
+
+  return Promise.all(
+    uniqueUrls.map(async (url) => {
+      const planet = await fetchJson<SwapiPlanet>(url);
+
+      return {
+        name: planet.name,
+        climate: planet.climate,
+        terrain: planet.terrain,
+        population: planet.population,
+      };
+    })
+  );
+}
+
+export async function listSpeciesByUrls(urls: string[]): Promise<Species[]> {
+  const uniqueUrls = normalizeUrls(urls);
+
+  return Promise.all(
+    uniqueUrls.map(async (url) => {
+      const species = await fetchJson<SwapiSpecies>(url);
+
+      return {
+        name: species.name,
+        classification: species.classification,
+        language: species.language,
+        averageLifespan: species.average_lifespan,
+      };
+    })
+  );
+}
+
+export async function listStarshipsByUrls(urls: string[]): Promise<Starship[]> {
+  const uniqueUrls = normalizeUrls(urls);
+
+  return Promise.all(
+    uniqueUrls.map(async (url) => {
+      const starship = await fetchJson<SwapiStarship>(url);
+
+      return {
+        name: starship.name,
+        model: starship.model,
+        manufacturer: starship.manufacturer,
+        starshipClass: starship.starship_class,
       };
     })
   );

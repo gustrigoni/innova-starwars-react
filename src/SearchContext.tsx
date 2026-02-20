@@ -17,6 +17,9 @@ const EMPTY_PERSON: Person = {
   eyeColor: "",
   image: "",
   films: [],
+  homeworld: "",
+  species: [],
+  starships: [],
 };
 
 const SearchContext = createContext<SearchContextValue | null>(null);
